@@ -21,6 +21,9 @@ int main() {
 编译 gcc main.c
 运行 ./a.out
 输出 hello world 
+
+
+
 ###回顾c语言的socket 通信
 
 ####socket (server端) 通信的一般 步骤
@@ -123,15 +126,15 @@ int main() {
 
     listen(server_sockfd, 5);
     while(1) {
-        char ch[5];
+        char ch[5000];
         char send_str[] = "hello world !\n";
         printf("server waiting\n");
 
         client_len = sizeof(client_address);
         client_sockfd = accept(server_sockfd,
         (struct sockaddr *)&client_address, &client_len);
-
-        read(client_sockfd, &ch, 5);
+        read(client_sockfd, &ch, 5000);
+        printf("%s", ch);
         write(client_sockfd, &send_str, sizeof(send_str)/sizeof(send_str[0])); 
         close(client_sockfd);
     }
@@ -140,7 +143,8 @@ int main() {
 ```
 
 ### 用 telnet 测试 
-    编译运行后: 执行命令 telnet 127.0.0.1 9734
+    编译运行后: 执行命令 telnet 127.0.0.1 9734   
+    后随便输入几个字符按回车输出 hello world !
 ```
 Trying 127.0.0.1...
 Connected to localhost.

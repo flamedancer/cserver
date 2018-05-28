@@ -21,7 +21,7 @@ int main() {
 
     listen(server_sockfd, 5);
     while(1) {
-        char ch[5];
+        char ch[5000];
         char send_str[] = "hello world !\n";
         printf("server waiting\n");
 
@@ -29,7 +29,8 @@ int main() {
         client_sockfd = accept(server_sockfd,
         (struct sockaddr *)&client_address, &client_len);
 
-        read(client_sockfd, &ch, 5);
+        read(client_sockfd, &ch, 5000);
+        printf("%s", ch);
         write(client_sockfd, &send_str, sizeof(send_str)/sizeof(send_str[0])); 
         close(client_sockfd);
     }
