@@ -116,35 +116,38 @@ int main() {
     int server_len, client_len;
     struct sockaddr_in server_address;
     struct sockaddr_in client_address;
-    server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    server_sockfd = socket(AF_INET, SOCK_STREAM, 0); //  创建socket，选择地址类型为网络地址，选择 TCP 通信
 
     server_address.sin_family = AF_INET;
-    server_address.sin_addr.s_addr = inet_addr("127.0.0.1");
-    server_address.sin_port = htons(9734);
+    server_address.sin_addr.s_addr = inet_addr("127.0.0.1");  // 设置网络地址的ip, inet_addr 会自动 转为 网络字节顺序
+    server_address.sin_port = htons(9734);    //  设置端口号，注意这里的 htons 方法 
     server_len = sizeof(server_address);
     bind(server_sockfd, (struct sockaddr *)&server_address, server_len);
 
     listen(server_sockfd, 5);
     while(1) {
         char ch[5000];
-        char send_str[] = "hello world !\n";
+        char send_str[] = "hello world !\n";  // 准备给连接过来的客户端发送的字符串
         printf("server waiting\n");
 
         client_len = sizeof(client_address);
         client_sockfd = accept(server_sockfd,
         (struct sockaddr *)&client_address, &client_len);
-        read(client_sockfd, &ch, 5000);
-        printf("%s", ch);
-        write(client_sockfd, &send_str, sizeof(send_str)/sizeof(send_str[0])); 
+        read(client_sockfd, &ch, 5000);    // 接收 客户端传来的字符
+        printf("%s", ch);     //  打印我们接收到的字符
+        write(client_sockfd, &send_str, sizeof(send_str)/sizeof(send_str[0]));   // 向客户端发送数据，这里的 read write 和 和文件读写时没什么区别 
         close(client_sockfd);
     }
 }
-
 ```
 
+和之前helloword一样编译运行我们的第一个版本！
+
 ### 用 telnet 测试 
-    编译运行后: 执行命令 telnet 127.0.0.1 9734   
-    后随便输入几个字符按回车输出 hello world !
+看看效果吧！新启一个终端，然后用telnet 尝试连接我们的服务器。
+执行命令 telnet 127.0.0.1 9734   
+随便输入几个字符按回车
+屏幕输出大概为这样：
 ```
 Trying 127.0.0.1...
 Connected to localhost.
@@ -153,6 +156,7 @@ dsfsd
 hello world !
 Connection closed by foreign host.
 ```
+再返回查看我们的服务器屏幕打印，能看到我们刚才随意输入的字符，说明我们的服务器能成功接收并返回数据了。
 
 
 
