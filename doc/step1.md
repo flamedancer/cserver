@@ -128,8 +128,6 @@ int main() {
     while(1) {
         char ch[5000];
         char send_str[] = "hello world !\n";  // 准备给连接过来的客户端发送的字符串
-        printf("server waiting\n");
-
         client_len = sizeof(client_address);
         client_sockfd = accept(server_sockfd,
         (struct sockaddr *)&client_address, &client_len);
