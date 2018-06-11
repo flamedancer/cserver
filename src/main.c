@@ -6,9 +6,11 @@
 #include <unistd.h>
 #include <netinet/in.h>
 
+#include "request.h"
+
 int main() {
     int server_sockfd, client_sockfd;
-    int server_len, client_len;
+    socklen_t server_len, client_len;
     struct sockaddr_in server_address;
     struct sockaddr_in client_address;
     server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -21,14 +23,18 @@ int main() {
 
     listen(server_sockfd, 5);
     while(1) {
-        char ch[5000];
+        char ch[50000];
         char send_str[] = "hello world !\n";
         client_len = sizeof(client_address);
         client_sockfd = accept(server_sockfd,
         (struct sockaddr *)&client_address, &client_len);
 
-        read(client_sockfd, &ch, 5000);
-        printf("%s", ch);
+        read(client_sockfd, &ch, 50000);
+        printf("%s\n", ch);
+        struct http_request request;
+        parse_request(&request, ch); 
+        printf("method is %s; url is %s; version is %s \n", request.method, request.url, request.version);
+        
         write(client_sockfd, &send_str, sizeof(send_str)/sizeof(send_str[0])); 
         close(client_sockfd);
     }
