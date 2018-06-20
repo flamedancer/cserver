@@ -106,7 +106,7 @@ int main() {
     3. 实现字符串split方法
     4. 按行解析header，遇到空行或字符串结尾停止
 
-1.   
+1. 创建链表结构体
 首先声明链表结构体
     * 链表元素结构体，用来存放实际的值，再加一个指向下一个的指针
     * 代表链表的结构体，存放链表的关键属性如大小，头尾指针
@@ -126,8 +126,11 @@ struct List {
 };
 
 ```
-再声明我们要用到的方法:新增元素，打印链表
+再声明我们要用到的方法:初始化, 新增元素，打印链表
 ``` c
+void initListItem(struct ListItem * listItem);
+void initList(struct List * listItem);
+
 void listAppend(struct List* list, struct ListItem* item);
 void listPrint(struct List* List);
 ```
@@ -137,6 +140,16 @@ void listPrint(struct List* List);
 #include <errno.h>        /* errno */
 #include <stdio.h>       /* NULL */
 #include "utils.h"
+
+void initListItem(struct ListItem * listItem) {
+    listItem->next=NULL;
+    listItem->value=NULL;
+}
+
+void initList(struct List * list) {
+    list->start=list->end=NULL;
+    list->length=0;
+}
 
 /* 在list尾端添加item
 1. 若list为空，首尾都指向item
@@ -162,11 +175,13 @@ void listPrint(struct List* list) {
             printf(", ");
         }
         printf("'%s'", point->value);
+        point = point->next;
     }
     printf("]\n");
 }
 ```
 测试
+我们尝试增加两个元素，然后打印怎个list
 ``` c
 /* test/utilsTest.c
     test cmd :
@@ -186,7 +201,7 @@ void listAppendTest() {
 
     struct ListItem listItem_instance2;
     struct ListItem* listItem2 = &listItem_instance2;
-    listItem->value = "nice to meet you";
+    listItem2->value = "nice to meet you";
 
 
     assert(list->length == 0);
@@ -202,4 +217,15 @@ int main() {
     listAppendTest();
 }
 ```
+看到输出结果为 
+```
+['hello world', 'nice to meet you']
+```
+完美！
+另外在我的源码中还实现了其他几个方法，就不一一赘述了。
+
+2. 创建哈希表结构体
+
+
+
 

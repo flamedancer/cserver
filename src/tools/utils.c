@@ -3,7 +3,19 @@
 
 #include <errno.h>        /* errno */
 #include <stdio.h>       /* NULL */
+#include <stdlib.h>    /* free malloc calloc */
 #include "utils.h"
+
+
+void initListItem(struct ListItem * listItem) {
+    listItem->next=NULL;
+    listItem->value=NULL;
+}
+
+void initList(struct List * list) {
+    list->start=list->end=NULL;
+    list->length=0;
+}
 
 /* 在list尾端添加item
 1. 若list为空，首尾都指向item
@@ -22,12 +34,11 @@ void listAppend(struct List* list, struct ListItem* item) {
 }
 
 /* 在 index 左边插入元素
-1. index 非零检查
-2. 若index越界，认为是append
+ 若index越界，认为是append
 */
 void listInsert(struct List* list, int index, struct ListItem* item) {
     if(index < 0) {
-        perror("error: index out of range");
+        index = 0;
     }
     if(index >= list->length) {
         listAppend(list, item);
@@ -44,8 +55,8 @@ void listInsert(struct List* list, int index, struct ListItem* item) {
     } else {
         item->next = insertpoint->next;
         insertpoint->next = item;
-        list->length++;
     }
+    list->length++;
 }
 
 
@@ -57,6 +68,7 @@ void listPrint(struct List* list) {
             printf(", ");
         }
         printf("'%s'", point->value);
+        point = point->next;
     }
     printf("]\n");
 }
@@ -102,5 +114,37 @@ void listSet(struct List* list, int index, struct ListItem* item) {
         
     }
 }
+
+void listRemove(struct List* list, struct ListItem* item) {}
+
+void initMap(struct Map* map){
+    map->table_len = HashTableLen;
+    map->item_cnt = 0;
+    for(int i=0; i<map->table_len; i++) {
+        map->table[i] = NULL;
+    }
+}
+
+void realseMap(struct Map* map) {
+    for(int i=0; i<map->table_len; i++) {
+        if(map->table[i] != NULL) {
+            free(map->table[i]);
+        }
+    }
+}
+
+int hashCode(char* str) {
+    int code;
+    for(code=0; *str != '\0'; str++) {
+        code = 31 * code + *str;
+    }
+    return code % HashTableLen;
+}
+
+void MapPush(struct Map* map, struct ListItem* item) {
+    int index = 0;
+    
+}
+
 
 
