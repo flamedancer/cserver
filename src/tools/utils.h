@@ -2,35 +2,32 @@
 */
 
 
-struct ListItem {
-    struct ListItem* next;
+struct Item {
+    struct Item* next;
+    char* key;
     char* value;
 };
 
-
+/* list */
 struct List {
-    struct ListItem* start;
-    struct ListItem* end;
+    struct Item* start;
+    struct Item* end;
     int length;
 };
 
-void initListItem(struct ListItem * listItem); 
+void initItem(struct Item * listItem); 
 void initList(struct List * listItem); 
 
 
-void listAppend(struct List* list, struct ListItem* item);
+void listAppend(struct List* list, struct Item* item);
 void listPrint(struct List* List);
-void listInsert(struct List* list, int index, struct ListItem* item); 
-struct ListItem* listGet(struct List* list, int index);
-void listSet(struct List* list, int index, struct ListItem* item);
-void listRemove(struct List* list, struct ListItem* item);
+void listInsert(struct List* list, int index, struct Item* item); 
+struct Item* listGet(struct List* list, int index);
+void listSet(struct List* list, int index, struct Item* item);
+void listRemove(struct List* list, struct Item* item);
 
+/* map */
 #define HashTableLen 100
-
-struct MapItem {
-    struct ListItem* next;
-    char* value;
-};
 
 struct Map {
     struct List* table[HashTableLen];
@@ -39,8 +36,11 @@ struct Map {
 };
 
 void initMap(struct Map* map);
-int hashCode(char* str);
+void releaseMap(struct Map* map);
+int hashCode(char * str);
 
-void MapPush(struct Map* map, struct ListItem* item);
+void mapPush(struct Map* map, struct Item* item);
+void mapPrint(struct Map* map);
+char * mapGet(struct Map* map, char * key);
 
 

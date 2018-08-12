@@ -1,9 +1,12 @@
 /* request.h
 */
+#include "tools/utils.h"
 struct http_request {
     char * method;
     char * url;
     char * version;
+    struct Map * headers; 
+    char * body; 
 };
 
 

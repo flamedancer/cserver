@@ -7,6 +7,16 @@
 #include <netinet/in.h>
 
 #include "request.h"
+#define MAXREQUESTLEN 50000
+
+
+void initString(char * c, int length) {
+    int i = 0;
+    while(i < length) {
+        *(c + i) = '\0';  
+        i++;
+    }
+}
 
 int main() {
     int server_sockfd, client_sockfd;
@@ -23,17 +33,19 @@ int main() {
 
     listen(server_sockfd, 5);
     while(1) {
-        char ch[50000];
+        char ch[MAXREQUESTLEN];
+        initString(ch, MAXREQUESTLEN); 
         char send_str[] = "hello world !\n";
         client_len = sizeof(client_address);
         client_sockfd = accept(server_sockfd,
         (struct sockaddr *)&client_address, &client_len);
 
-        read(client_sockfd, &ch, 50000);
+        read(client_sockfd, &ch, MAXREQUESTLEN);
         printf("%s\n", ch);
         struct http_request request;
+        struct Map headers;
+        request.headers = &headers;
         parse_request(&request, ch); 
-        printf("method is %s; url is %s; version is %s \n", request.method, request.url, request.version);
         
         write(client_sockfd, &send_str, sizeof(send_str)/sizeof(send_str[0])); 
         close(client_sockfd);

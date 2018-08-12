@@ -4,11 +4,13 @@
 #include <errno.h>        /* errno */
 #include <stdio.h>       /* NULL */
 #include <stdlib.h>    /* free malloc calloc */
+#include <string.h>
 #include "utils.h"
 
 
-void initListItem(struct ListItem * listItem) {
+void initItem(struct Item * listItem) {
     listItem->next=NULL;
+    listItem->key=NULL;
     listItem->value=NULL;
 }
 
@@ -22,21 +24,22 @@ void initList(struct List * list) {
 2. 否则，尾端的下一项指向item, 再置尾端为item
 3. length + 1
 */
-void listAppend(struct List* list, struct ListItem* item) {
+void listAppend(struct List* list, struct Item* item) {
     item->next = NULL;
     if(list->start == NULL) {
-        list->start = list->end = item;
-    } else {
-        list->end->next = item;
-        list->end = item;
+         list->start = list->end = item;
     }
-    list->length++;
+     else {
+         list->end->next = item;
+         list->end = item;
+     }
+     list->length++;
 }
 
 /* 在 index 左边插入元素
  若index越界，认为是append
 */
-void listInsert(struct List* list, int index, struct ListItem* item) {
+void listInsert(struct List* list, int index, struct Item* item) {
     if(index < 0) {
         index = 0;
     }
@@ -45,7 +48,7 @@ void listInsert(struct List* list, int index, struct ListItem* item) {
         return;
     }
     item->next = NULL;
-    struct ListItem* insertpoint = list->start;
+    struct Item* insertpoint = list->start;
     for(int step = 0; step < index; step++) {
         insertpoint = insertpoint->next;
     }
@@ -61,7 +64,7 @@ void listInsert(struct List* list, int index, struct ListItem* item) {
 
 
 void listPrint(struct List* list) {
-    struct ListItem* point = list->start;
+    struct Item* point = list->start;
     printf("[");
     for(int i=0; i<list->length; i++) {
         if( i>0 ) {
@@ -76,18 +79,18 @@ void listPrint(struct List* list) {
 
 /* 取 index 处元素
 */
-struct ListItem* listGet(struct List* list, int index) {
+struct Item* listGet(struct List* list, int index) {
     if(index >= list->length || index < 0) {
         perror("Error: Index Out Of Range");
     }
-    struct ListItem* point = list->start;
+    struct Item* point = list->start;
     for(int step = 0; step < index; step++) {
         point = point->next;
     }
     return point;
 }
 
-void listSet(struct List* list, int index, struct ListItem* item) {
+void listSet(struct List* list, int index, struct Item* item) {
     if(index >= list->length || index < 0) {
         perror("Error: Index Out Of Range");
     }
@@ -100,7 +103,7 @@ void listSet(struct List* list, int index, struct ListItem* item) {
             list->start = item;
         }
     } else {
-        struct ListItem* point = list->start;
+        struct Item* point = list->start;
         for(int step = 0; step < index; step++) {
             point = point->next;
         }
@@ -115,7 +118,7 @@ void listSet(struct List* list, int index, struct ListItem* item) {
     }
 }
 
-void listRemove(struct List* list, struct ListItem* item) {}
+void listRemove(struct List* list, struct Item* item) {}
 
 void initMap(struct Map* map){
     map->table_len = HashTableLen;
@@ -125,26 +128,78 @@ void initMap(struct Map* map){
     }
 }
 
-void realseMap(struct Map* map) {
+void releaseMap(struct Map* map) {
     for(int i=0; i<map->table_len; i++) {
         if(map->table[i] != NULL) {
             free(map->table[i]);
+            map->table[i] = NULL;
         }
     }
 }
 
-int hashCode(char* str) {
+int hashCode(char * str) {
     int code;
-    for(code=0; *str != '\0'; str++) {
-        code = 31 * code + *str;
+    int len = 0;
+    int maxLen = 100;
+    for(code=0; *str != '\0' && len < maxLen; str++) {
+        code = code + 31 * (*str);
+        len++;
     }
     return code % HashTableLen;
 }
 
-void MapPush(struct Map* map, struct ListItem* item) {
-    int index = 0;
-    
+void mapPush(struct Map* map, struct Item* item) {
+    int index = hashCode(item->key);
+    if(map->table[index] == NULL) {
+         struct List* list = (struct List *)malloc(sizeof(struct List));
+         initList(list);
+         if(list == NULL) {
+             perror("Error: out of storeage");
+         }
+         map->table[index] = list;
+    }
+    listAppend(map->table[index], item);
+    map->item_cnt++;
 }
 
+void mapPrint(struct Map* map) {
+    struct List* list; 
+    struct Item* item;
+    int print_item_cnt = 0; 
+    printf("{");
+    for(int i=0; i<map->table_len; i++) {
+         list = map->table[i];
+         if(list == NULL) {
+            continue;
+         }
+         item = list->start;
+         while(item != NULL) {
+             printf("'%s': '%s'", item->key, item->value);
+             item = item->next;
+             print_item_cnt++;
+             if(print_item_cnt != map->item_cnt) {
+                 printf(", ");
+             }
+         }
+    }
+    printf("}\n");
+} 
 
+/* 查找是否有这个 key 有则返回对应value 没有则返回null */
+char * mapGet(struct Map * map, char * key) {
+    int index = hashCode(key);
+    if(map->table[index] == NULL) {
+        return NULL;
+    } else {
+        struct Item* item;
+        item = map->table[index]->start;
+        while(item != NULL) {
+            if(strcmp(key, item->key) == 0 ) {
+                return item->value;
+            }
+            item = item->next;
+        }
+    }
+    return NULL;
+}
 
