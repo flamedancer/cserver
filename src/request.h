@@ -1,5 +1,8 @@
 /* request.h
 */
+
+#ifndef __REQUEST__
+#define __REQUEST__ 
 #include "tools/utils.h"
 struct http_request {
     char * method;
@@ -13,3 +16,7 @@ struct http_request {
 void parse_request(
     struct http_request * request,  
     char * http_data);
+
+
+
+#endif

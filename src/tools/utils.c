@@ -19,6 +19,14 @@ void initList(struct List * list) {
     list->length=0;
 }
 
+struct Item * newItem(char * key, char * value) {
+    struct Item * item = (struct Item *) malloc(sizeof(struct Item));
+    initItem(item);
+    item->key = key;
+    item->value = value;
+    return item;
+}
+
 /* 在list尾端添加item
 1. 若list为空，首尾都指向item
 2. 否则，尾端的下一项指向item, 再置尾端为item
@@ -151,12 +159,24 @@ int hashCode(char * str) {
 void mapPush(struct Map* map, struct Item* item) {
     int index = hashCode(item->key);
     if(map->table[index] == NULL) {
-         struct List* list = (struct List *)malloc(sizeof(struct List));
+         struct List* list = malloc(sizeof(struct List));
          initList(list);
          if(list == NULL) {
              perror("Error: out of storeage");
          }
          map->table[index] = list;
+    } else {
+        // 检查是否已经有key, 有则覆盖
+        struct Item* _item;
+        char * key = item->key;
+        _item = map->table[index]->start;
+        while(_item != NULL) {
+            if(strcmp(key, _item->key) == 0 ) {
+                _item->value = item->value;
+                return;
+            }
+            _item = _item->next;
+        }
     }
     listAppend(map->table[index], item);
     map->item_cnt++;
@@ -202,4 +222,3 @@ char * mapGet(struct Map * map, char * key) {
     }
     return NULL;
 }
-

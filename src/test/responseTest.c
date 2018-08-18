@@ -1,8 +1,10 @@
-/* test/requestTest.c
-test cmd: gcc  ../request.h ../request.c ../tools/utils.h ../tools/utils.c  requestTest.c && ./a.out
+/* test/responseTest.c
+test cmd:
+gcc  ../request.h ../request.c ../response.h ../response.c ../tools/utils.h ../tools/utils.c  responseTest.c && ./a.out
 */
 #include <stdio.h>
 #include "../request.h" 
+#include "../response.h" 
 
 
 int main() {
@@ -11,5 +13,5 @@ int main() {
     struct Map headers;
     request.headers = &headers;
     parse_request(&request, data); 
-    printf("method is %s; url is %s; version is %s \n", request.method, request.url, request.version);
+    doResponse(&request, stdout);
 }

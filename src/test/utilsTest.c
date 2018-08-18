@@ -76,8 +76,16 @@ void mapPushTest() {
     item2->value = "nice to meet you";
     mapPush(map, item2);
     mapPrint(map);
-    printf("the value fo the key is  %s: %s, %s: %s\n",
+    struct Item item_instance3; 
+    initItem(&item_instance3);
+    struct Item* item3 = &item_instance3; 
+    item3->key = "h2";
+    item3->value = "nice to meet you you too";
+    mapPush(map, item3);
+    mapPrint(map);
+    printf("the value fo the key is  %s: %s, %s: %s %s: %s\n",
              "h", mapGet(map, "h"), 
+             "h2", mapGet(map, "h2"), 
              "h3", mapGet(map, "h3"));
     
     

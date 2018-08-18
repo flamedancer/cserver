@@ -1,3 +1,8 @@
+/**
+run cmd:
+gcc request.h request.c response.h response.c main.c tools/utils.c tools/utils.h && ./a.out
+
+*/
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <stdio.h>
@@ -5,8 +10,10 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <netinet/in.h>
+#include <stdlib.h>
 
 #include "request.h"
+#include "response.h"
 #define MAXREQUESTLEN 50000
 
 
@@ -33,9 +40,10 @@ int main() {
 
     listen(server_sockfd, 5);
     while(1) {
+
         char ch[MAXREQUESTLEN];
         initString(ch, MAXREQUESTLEN); 
-        char send_str[] = "hello world !\n";
+        // char send_str[] = "hello world !\n";
         client_len = sizeof(client_address);
         client_sockfd = accept(server_sockfd,
         (struct sockaddr *)&client_address, &client_len);
@@ -46,9 +54,11 @@ int main() {
         struct Map headers;
         request.headers = &headers;
         parse_request(&request, ch); 
-        
-        write(client_sockfd, &send_str, sizeof(send_str)/sizeof(send_str[0])); 
-        close(client_sockfd);
+        FILE* fp = fdopen(client_sockfd, "w+");
+        doResponse(&request, fp); 
+        fflush(fp);
+        fclose(fp);
+        // write(client_sockfd, &send_str, sizeof(send_str)/sizeof(send_str[0])); 
     }
 }
 

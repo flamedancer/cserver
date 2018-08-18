@@ -1,6 +1,8 @@
 /* tools/utils.h
 */
 
+#ifndef __TOOLUTILS__
+#define __TOOLUTILS__
 
 struct Item {
     struct Item* next;
@@ -17,6 +19,7 @@ struct List {
 
 void initItem(struct Item * listItem); 
 void initList(struct List * listItem); 
+struct Item * newItem(char * key, char * value);
 
 
 void listAppend(struct List* list, struct Item* item);
@@ -43,4 +46,4 @@ void mapPush(struct Map* map, struct Item* item);
 void mapPrint(struct Map* map);
 char * mapGet(struct Map* map, char * key);
 
-
+#endif

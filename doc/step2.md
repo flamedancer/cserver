@@ -1,5 +1,6 @@
 # 从零开始一个http服务器 （二)
-
+代码地址 ： https://github.com/flamedancer/cserver
+git checkout step2
 ## 解析http request
 
 * 观察收到的http数据 
@@ -25,7 +26,7 @@ Accept-Language: zh-CN,zh;q=0.9,en;q=0.8
     除了GET请求外，另一种常用的请求是POST。用浏览器发POST请求稍麻烦，我们就借用curl工具来发送个HTTP POST请求给服务器看下数据又会是怎们样的：
 `curl -d "message=nice to meet you" 127.0.0.1:9734/hello`, 服务器收到的信息：
 ```
-POST /hell HTTP/1.1
+POST /hello HTTP/1.1
 Host: 127.0.0.1:9734
 User-Agent: curl/7.54.0
 Accept: */*
@@ -111,6 +112,7 @@ int main() {
 首先声明链表结构体
     * 链表元素结构体，用来存放实际的值，再加一个指向下一个的指针
     * 代表链表的结构体，存放链表的关键属性如大小，头尾指针
+
 ``` c
 /* tools/utils.h
 */
@@ -127,6 +129,7 @@ struct List {
 };
 
 ```
+
 再声明我们要用到的方法:初始化, 新增元素，打印链表
 ``` c
 void initListItem(struct ListItem * listItem);
@@ -291,8 +294,8 @@ int hashCode(struct Item* item) {
     return code % HashTableLen;
 }
 
-void mapPush(struct Map* map, struct Item* item) {
-    int index = hashCode(item);
+void mapPush(struct Map* map, struct Item* newItem) {
+    int index = hashCode(newItem);
     if(map->table[index] == NULL) {
          struct List* list = malloc(sizeof(struct List));
          initList(list);
@@ -300,9 +303,21 @@ void mapPush(struct Map* map, struct Item* item) {
              perror("Error: out of storeage");
          }
          map->table[index] = list;
+    } else {
+        // 检查是否已经有key, 有则覆盖
+        struct Item* item;
+        key = newItem->key;
+        item = map->table[index]->start;
+        while(item != NULL) {
+            if(strcmp(key, item->key) == 0 ) {
+                item->value = newItem->value; 
+                return;
+            }
+            item = item->next;
+        }
+        listAppend(map->table[index], item);
+        map->item_cnt++;
     }
-    listAppend(map->table[index], item);
-    map->item_cnt++;
 }
 
 void mapPrint(struct Map* map) {
@@ -327,6 +342,25 @@ void mapPrint(struct Map* map) {
     }
     printf("}\n");
 }
+
+/* 查找是否有这个 key 有则返回对应value 没有则返回null */
+char * mapGet(struct Map * map, char * key) {
+    int index = hashCode(key);
+    if(map->table[index] == NULL) {
+        return NULL;
+    } else {
+        struct Item* item;
+        item = map->table[index]->start;
+        while(item != NULL) {
+            if(strcmp(key, item->key) == 0 ) {
+                return item->value;
+            }
+            item = item->next;
+        }
+    }
+    return NULL;
+}
+
 ```
 测试代码
 ``` c
@@ -361,7 +395,7 @@ void mapPushTest() {
 
 3. 解析header代码
 有了map结构体后，解析header就方便多了，只要按行根据":" 拆分成 key和value就行了
-``` c
+​``` c
 /* 第二行开始为 header  解析hedaer*/
 start++;   // 第二行开始
 initMap(request->headers);
