@@ -14,7 +14,7 @@ gcc request.h request.c response.h response.c main.c tools/utils.c tools/utils.h
 ###观察response结构 
 
 上一节,我们成功解析了http的request，但是我们在浏览器访问我们的地址http://127.0.0.1:9734/ 还是无法正常显示。这是因为我们没有给浏览器返回它能读懂的信息。这一节我们的目标是让浏览器正确的显示信息。什么样的才是浏览器能读懂的信息呢？不妨我们用telnet来模拟向百度主页发一个http request,来看看百度主页返回的是什么信息。
-伪造一个http request的字符串，主页 headers 中的 Host 代表我们要访问的主机地址。
+伪造一个http request的字符串，注意 headers 中的 Host 代表我们要访问的主机地址。
 ```
 GET / HTTP/1.1
 Host: www.baidu.com
@@ -23,7 +23,7 @@ Accept: */*
 Content-Type: application/x-www-form-urlencode
 ```
 再用telnet连接www.baidu.com 并指定80端口（80为http默认端口，telnet默认端口为23）, `telnet www.baidu.com 80`
-复制黏贴上面我们构造的字符串，你应该能看到如下类似的结果：
+复制黏贴上面我们构造的字符串回车后，你应该能看到如下类似的返回结果：
 ```
 Trying 119.75.216.20...
 Connected to www.a.shifen.com.
@@ -89,7 +89,7 @@ void outputToFile(
 );
 ```
 
-我们先直接固定构造我们的response数据
+构造我们的response数据, 我们每次都返回相同的数据.
 
 ``` c
 /* response.c
