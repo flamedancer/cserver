@@ -51,7 +51,7 @@ Set-Cookie: BDORZ=27315; max-age=86400; domain=.baidu.com; path=/
 <!--STATUS OK--><html> ...</html>
 Connection closed by foreign host.
 ```
-从`HTTP/1.1 200 OK`开始就是百度放回给我们的结果。让人惊喜的是这种结构和request很类型，除了第一行外。仔细看看: 
+从`HTTP/1.1 200 OK`开始就是百度返回给我们的结果。让人惊喜的是这种结构和request很类似，除了第一行外。仔细看看: 
 * 第一行为    http版本号 response返回码 response返回结果描述
 * 第二行开始为headers
 * 空行后，接body
@@ -59,7 +59,7 @@ Connection closed by foreign host.
 
 
 ###定义并返回response
-根据response的结构有的信息定义我们的结构体.
+根据我们观察到的response结构定义相对应的结构体.
 
 ``` c 
 /* response.h
