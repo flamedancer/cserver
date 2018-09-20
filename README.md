@@ -1,7 +1,7 @@
 # cserver
 从零开始一个服务器（C语言）
 # 运行
-gcc request.h request.c response.h response.c main.c tools/utils.c tools/utils.h && ./a.out
+make && ./myserver.out
 # 浏览器访问
  http://127.0.0.1:9734/
 
