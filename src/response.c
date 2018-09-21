@@ -23,11 +23,36 @@ void doResponse(struct http_request * request, FILE * stream) {
     response->version = "HTTP/1.1";
     response->code = "200";
     response->desc = "OK";
+    FILE *fileptr;
+    char *buffer;
+    int filelen;
+
+    fileptr = fopen("static/home.html", "rb");         
+    fseek(fileptr, 0, SEEK_END);          
+    filelen = ftell(fileptr);            
+    rewind(fileptr);                      
+    buffer = (char *)malloc((filelen+1)*sizeof(char)); 
+    fread(buffer, 1, filelen+1, fileptr); 
+    // for(int i = 0; i < filelen; i++) {
+    //    fread(buffer+i, 1, 1, fileptr); 
+    // }
+    fclose(fileptr);
+    printf("buffer is %s\n",*&buffer);
+
+    fileptr = fopen("static/pic2.jpeg", "wb");
+    fprintf(fileptr, buffer);
+    fclose(fileptr);
+
+
 
     
-    char * content = "<html>hello everyone</html>";
+    // char * content = "<html>hello everyone</html>";
+    // char * content = buffer;
     char content_len[25];
-    sprintf(content_len, "%lu", strlen(content));
+    // sprintf(content_len, "%lu", strlen(content));
+    sprintf(content_len, "%lu", filelen);
+
+    // printf("xxxx  %d \n", content_len);
     struct Item * item = newItem(
         "Content-Length",
         content_len
@@ -35,15 +60,17 @@ void doResponse(struct http_request * request, FILE * stream) {
     struct Map map_instance;
     initMap(&map_instance);
     response->headers = &map_instance;
-    
+   
     mapPush(response->headers, item);
     
-    response->body = content;
+    response->body = buffer;
     
     outputToFile(response, stream);
     
     // clean
     releaseMap(request->headers);
+    free(buffer);
+
 }
 
 
