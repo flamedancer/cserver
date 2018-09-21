@@ -21,5 +21,6 @@ void doResponse(
 
 void outputToFile(
     struct http_response * response,
-    FILE * stream
+    FILE * stream,
+    int body_len
 );

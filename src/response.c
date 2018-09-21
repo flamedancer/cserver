@@ -3,6 +3,7 @@
 */
 #include <stdio.h>       /* fprintf  NULL */
 #include <string.h>       /* strlen */
+#include <stdlib.h>     /* malloc, free, rand */
 #include "response.h"
 #include "request.h"
 #include "tools/utils.h"
@@ -27,21 +28,14 @@ void doResponse(struct http_request * request, FILE * stream) {
     char *buffer;
     int filelen;
 
-    fileptr = fopen("static/home.html", "rb");         
+    fileptr = fopen("static/pic1.jpeg", "rb");         
     fseek(fileptr, 0, SEEK_END);          
     filelen = ftell(fileptr);            
     rewind(fileptr);                      
-    buffer = (char *)malloc((filelen+1)*sizeof(char)); 
-    fread(buffer, 1, filelen+1, fileptr); 
-    // for(int i = 0; i < filelen; i++) {
-    //    fread(buffer+i, 1, 1, fileptr); 
-    // }
+    buffer = (char *)malloc((filelen)*sizeof(char)); 
+    fread(buffer, filelen, 1, fileptr); 
     fclose(fileptr);
-    printf("buffer is %s\n",*&buffer);
 
-    fileptr = fopen("static/pic2.jpeg", "wb");
-    fprintf(fileptr, buffer);
-    fclose(fileptr);
 
 
 
@@ -50,7 +44,7 @@ void doResponse(struct http_request * request, FILE * stream) {
     // char * content = buffer;
     char content_len[25];
     // sprintf(content_len, "%lu", strlen(content));
-    sprintf(content_len, "%lu", filelen);
+    sprintf(content_len, "%d", filelen);
 
     // printf("xxxx  %d \n", content_len);
     struct Item * item = newItem(
@@ -65,7 +59,8 @@ void doResponse(struct http_request * request, FILE * stream) {
     
     response->body = buffer;
     
-    outputToFile(response, stream);
+    outputToFile(response, stream, filelen);
+
     
     // clean
     releaseMap(request->headers);
@@ -74,7 +69,7 @@ void doResponse(struct http_request * request, FILE * stream) {
 }
 
 
-void outputToFile(struct http_response * response, FILE * stream) {
+void outputToFile(struct http_response * response, FILE * stream, int body_len) {
     // output version code desc
     int r = fprintf(stream, "%s %s %s \r\n",
         response->version,
@@ -101,7 +96,9 @@ void outputToFile(struct http_response * response, FILE * stream) {
         }
     }
     // output body
-    if(response->body != NULL) {
-        fprintf(stream, "\r\n%s", response->body);
+    if(body_len > 0 && response->body != NULL) {
+        fprintf(stream, "\r\n");
+        fwrite(response->body, body_len, 1, stream);
+        // fprintf(stream, "%s", response->body);
     }
 }
