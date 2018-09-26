@@ -2,7 +2,7 @@
 */
 #include <stdio.h>
 #include "tools/utils.h"
-#include "request.h"·
+#include "request.h"
 
 struct http_response {
     char * version;
@@ -29,3 +29,5 @@ char *responeFileContent(
     char * filePath, 
     struct http_response * response
 );
+
+char *show_dir_content(struct http_response *response);
