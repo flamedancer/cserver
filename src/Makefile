@@ -3,7 +3,7 @@ objects = main.o request.o response.o \
 VPATH = tools
 
 myserver.out : $(objects)
-	gcc -o myserver.out $(objects)
+	cc -o myserver.out $(objects)
 
 main.o :
 request.o :
