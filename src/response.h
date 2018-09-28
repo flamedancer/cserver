@@ -25,9 +25,9 @@ void outputToFile(
     FILE * stream
 );
 
-char *responeFileContent(
+void responeFileContent(
     char * filePath, 
     struct http_response * response
 );
 
-char *show_dir_content(struct http_response *response);
+void show_dir_content(struct http_response *response);

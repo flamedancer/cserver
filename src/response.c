@@ -27,22 +27,21 @@ void doResponse(struct http_request * request, FILE * stream) {
     response->desc = "OK";
 
     char content_len[25];
-    char * body;
 
     char * home_url = "/";
     char * static_url = "/static/";
     char * action_url = "/action/";
 
     if (strncmp(static_url, request->url, strlen(static_url)) == 0) {
-        body = responeFileContent(request->url + 1, response);
+        responeFileContent(request->url + 1, response);
     }
     else if (strncmp(home_url, request->url, strlen(home_url)) == 0) {
-        body = show_dir_content(response);
+        show_dir_content(response);
     } else {
         char *content = "<html>hello everyone</html>";
         response->body_size = (int)strlen(content);
-        body = (char *)malloc((response->body_size) * sizeof(char));
-        strcpy(body, content);
+        response->body = (char *)malloc((response->body_size) * sizeof(char));
+        strcpy(response->body, content);
     }
     sprintf(content_len, "%d", response->body_size);
 
@@ -55,14 +54,12 @@ void doResponse(struct http_request * request, FILE * stream) {
     response->headers = &map_instance;
    
     mapPush(response->headers, item);
-
-    response->body = body;
-
+    
     outputToFile(response, stream);
 
     // clean
-    releaseMap(request->headers);
-    free(body);
+    free(response->body);   // If ptr is NULL, no operation is performed.
+    response->body = NULL;
 }
 
 
@@ -99,10 +96,9 @@ void outputToFile(struct http_response * response, FILE * stream) {
     }
 }
 
-char * responeFileContent(char * filePath, struct http_response * response) {
+void responeFileContent(char * filePath, struct http_response * response) {
     char * error_file = "static/404.html";
     FILE * fileptr;
-    char * body;
     fileptr = fopen(filePath, "rb");
     if (NULL == fileptr)
     {
@@ -111,13 +107,13 @@ char * responeFileContent(char * filePath, struct http_response * response) {
     fseek(fileptr, 0, SEEK_END);
     response->body_size = ftell(fileptr);
     rewind(fileptr);
-    body = (char *)malloc((response->body_size) * sizeof(char));
-    fread(body, response->body_size, 1, fileptr);
+    response->body = (char *)malloc((response->body_size) * sizeof(char));
+    fread(response->body, response->body_size, 1, fileptr);
     fclose(fileptr);
-    return body;
+    return;
 }
 
-char * show_dir_content(struct http_response * response) {
+void show_dir_content(struct http_response * response) {
     char * path = "static";
     char *html = "<html> <ul> %s </ul> </html>";
     char *ui = "<li><a href='/static/%s'>static/%s</a></li>";
@@ -138,8 +134,8 @@ char * show_dir_content(struct http_response * response) {
     }
     closedir(d); // finally close the directory
 
-    char * body = (char *)malloc((strlen(liStr) + strlen(html)) * sizeof(char));
-    sprintf(body, html, liStr);
-    response->body_size = strlen(body);
-    return body;
+    response->body = (char *)malloc((strlen(liStr) + strlen(html)) * sizeof(char));
+    sprintf(response->body, html, liStr);
+    response->body_size = strlen(response->body);
+    return;
 }
