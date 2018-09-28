@@ -32,7 +32,6 @@ void parse_request(
     /* 第一行解析结束 */
     /* 第二行开始为 header  解析hedaer*/
     start++;   // 第二行开始
-    initMap(request->headers);
     char * line = start;
     char * key;
     char * value;
@@ -80,6 +79,5 @@ void parse_request(
     printf("body is %s \n", request->body);
     printf("---------------------------\n");
 
-    releaseMap(request->headers);
 }
 
