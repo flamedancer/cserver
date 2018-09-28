@@ -38,13 +38,13 @@ void doResponse(struct http_request * request, FILE * stream) {
     else if (strncmp(home_url, request->url, strlen(home_url)) == 0) {
         show_dir_content(response);
     } else {
-        char *content = "<html>hello everyone</html>";
+        char *content = "<html><meta charset='utf-8'><a src='/'> >_< 看来你迷路了 </a></html>";
         response->body_size = (int)strlen(content);
-        response->body = (char *)malloc((response->body_size) * sizeof(char));
+        response->body = (char *)malloc((response->body_size));
         strcpy(response->body, content);
     }
     sprintf(content_len, "%d", response->body_size);
-
+    printf("body size is %d\n", response->body_size);
     struct Item * item = newItem(
         "Content-Length",
         content_len
@@ -107,7 +107,7 @@ void responeFileContent(char * filePath, struct http_response * response) {
     fseek(fileptr, 0, SEEK_END);
     response->body_size = ftell(fileptr);
     rewind(fileptr);
-    response->body = (char *)malloc((response->body_size) * sizeof(char));
+    response->body = (char *)malloc((response->body_size));
     fread(response->body, response->body_size, 1, fileptr);
     fclose(fileptr);
     return;
