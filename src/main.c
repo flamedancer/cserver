@@ -31,17 +31,23 @@ int main() {
     bind(server_sockfd, (struct sockaddr *)&server_address, server_len);
 
     listen(server_sockfd, 5);
-    while(1) {
 
-        char ch[MAXREQUESTLEN];
+    char ch[MAXREQUESTLEN];
+    client_len = sizeof(client_address);
+    int readLen;
+    while(1) {
+        readLen = 0;
         memset(ch, 0, sizeof(char) * MAXREQUESTLEN);
         // char send_str[] = "hello world !\n";
-        client_len = sizeof(client_address);
         client_sockfd = accept(server_sockfd,
         (struct sockaddr *)&client_address, &client_len);
 
-        read(client_sockfd, &ch, MAXREQUESTLEN);
+        readLen = read(client_sockfd, &ch, MAXREQUESTLEN);
         printf("%s\n", ch);
+        if (readLen <= 0) {
+            close(client_sockfd);
+            continue;
+        }
         struct http_request request;
         struct Map headers;
         request.headers = &headers;
@@ -56,6 +62,7 @@ int main() {
 
         // clean
         releaseMap(request.headers);
+        
     }
 }
 

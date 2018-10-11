@@ -5,11 +5,22 @@
 #include <string.h>       /* strlen */
 #include <stdlib.h>     /* malloc, free, rand */
 #include <dirent.h>     /* DIR opendir DT_DIR */
+#include <unistd.h>   /* access */
 #include "response.h"
 #include "request.h"
 #include "tools/utils.h"
 
-void initHttpResponse(struct http_response * response) {
+// #define home_url "/";
+const char * home_url = "/";
+const char * static_url = "/static/";
+const char * action_url = "/action/";
+
+const char *errorMsg = "<html><meta charset='utf-8'>"
+                       "<p> cserver error: File Not Found </p>"
+                       "<a href='/'> >_< 看来你迷路了 </a>"
+                       "</html>";
+
+void initHttpResponse(struct http_response *response) {
     response->version = NULL;
     response->code = NULL;
     response->desc = NULL;
@@ -22,37 +33,31 @@ void doResponse(struct http_request * request, FILE * stream) {
     struct http_response responseInstance;
     struct http_response * response = &responseInstance; 
     initHttpResponse(response);
+    struct Map map_instance;
+    initMap(&map_instance);
+    response->headers = &map_instance;
+
     response->version = "HTTP/1.1";
     response->code = "200";
     response->desc = "OK";
 
-    char content_len[25];
-
-    char * home_url = "/";
-    char * static_url = "/static/";
-    char * action_url = "/action/";
 
     if (strncmp(static_url, request->url, strlen(static_url)) == 0) {
         responeFileContent(request->url + 1, response);
-    }
-    else if (strncmp(home_url, request->url, strlen(home_url)) == 0) {
+    } else if (strncmp(action_url, request->url, strlen(action_url)) == 0) {
+        doCgi(request->url + 1, response);
+    } else if (strncmp(home_url, request->url, strlen(home_url)) == 0) {
         show_dir_content(response);
     } else {
-        char *content = "<html><meta charset='utf-8'><a src='/'> >_< 看来你迷路了 </a></html>";
-        response->body_size = (int)strlen(content);
-        response->body = (char *)malloc((response->body_size));
-        strcpy(response->body, content);
+        setResponseMsg(response, errorMsg);
     }
+
+    char content_len[25];
     sprintf(content_len, "%d", response->body_size);
-    printf("body size is %d\n", response->body_size);
     struct Item * item = newItem(
         "Content-Length",
         content_len
     );
-    struct Map map_instance;
-    initMap(&map_instance);
-    response->headers = &map_instance;
-   
     mapPush(response->headers, item);
     
     outputToFile(response, stream);
@@ -96,12 +101,19 @@ void outputToFile(struct http_response * response, FILE * stream) {
     }
 }
 
+void setResponseMsg(struct http_response * response, const char * msg) {
+    // meta 优先级比 header 高， 所以没必要 设置Content-Type: text/html; charset=utf-8
+    response->body_size = (int)strlen(msg);
+    response->body = (char *)malloc((response->body_size));
+    strcpy(response->body, msg);
+}
+
+
 void responeFileContent(char * filePath, struct http_response * response) {
     char * error_file = "static/404.html";
     FILE * fileptr;
     fileptr = fopen(filePath, "rb");
-    if (NULL == fileptr)
-    {
+    if (NULL == fileptr) {
         fileptr = fopen(error_file, "rb");
     }
     fseek(fileptr, 0, SEEK_END);
@@ -120,7 +132,7 @@ void show_dir_content(struct http_response * response) {
 
     char liStr[500];
     char * liStrP = liStr;
-        DIR *d = opendir(path); // open the path
+    DIR *d = opendir(path); // open the path
     // if (d == NULL)
     //     return;                        // if was not able return
     struct dirent *dir;                // for the directory entries
@@ -137,5 +149,37 @@ void show_dir_content(struct http_response * response) {
     response->body = (char *)malloc((strlen(liStr) + strlen(html)) * sizeof(char));
     sprintf(response->body, html, liStr);
     response->body_size = strlen(response->body);
+    return;
+}
+
+void doCgi(char * filePath, struct http_response * response) {
+    char fileName[100];
+    char cmd[100];
+    sprintf(fileName, "%s.sh", filePath + strlen(action_url + 1));
+    sprintf(cmd, "sh cgi/%s 2>&1", fileName);
+
+    FILE *fstream = NULL;
+    if (access(fileName, F_OK) == -1 || NULL == (fstream = popen(cmd, "r"))) {
+        // file doesn't exist or FILE cannot be exec
+        setResponseMsg(response, errorMsg);
+        return;
+    }
+
+    response->body = (char *)malloc((5000));
+    int len = 0;
+    char *buff = response->body;
+    do {
+    buff += len;
+    len = fread(buff, 1024, 1, fstream);
+    printf("%d\n", len);
+
+    } while (len);
+    pclose(fstream);
+    response->body_size = strlen(response->body);
+    struct Item *item2 = newItem(
+        "Content-Type",
+        "text/html; charset=utf-8");
+    mapPush(response->headers, item2);
+
     return;
 }

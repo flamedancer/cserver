@@ -19,6 +19,7 @@ void doResponse(
     struct http_request * request, 
     FILE * stream
 );
+void setResponseMsg(struct http_response *response, const char * msg);
 
 void outputToFile(
     struct http_response * response,
@@ -31,3 +32,7 @@ void responeFileContent(
 );
 
 void show_dir_content(struct http_response *response);
+
+void doCgi(
+    char *filePath,
+    struct http_response *response);
