@@ -65,6 +65,7 @@ void doResponse(struct http_request * request, FILE * stream) {
     // clean
     free(response->body);   // If ptr is NULL, no operation is performed.
     response->body = NULL;
+    releaseMap(response->headers);
 }
 
 

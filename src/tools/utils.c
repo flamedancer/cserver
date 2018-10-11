@@ -139,6 +139,14 @@ void initMap(struct Map* map){
 void releaseMap(struct Map* map) {
     for(int i=0; i<map->table_len; i++) {
         if(map->table[i] != NULL) {
+            /* free map 的同时 把所有 item free掉 */
+            struct Item * point = map->table[i]->start;
+            struct Item * nextPoint = NULL;
+            for (int j = 0; j < map->table[i]->length; j++) {
+                nextPoint = point->next;
+                free(point);
+                point = nextPoint;
+            }
             free(map->table[i]);
             map->table[i] = NULL;
         }

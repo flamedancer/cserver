@@ -43,7 +43,7 @@ int main() {
         (struct sockaddr *)&client_address, &client_len);
 
         readLen = read(client_sockfd, &ch, MAXREQUESTLEN);
-        printf("%s\n", ch);
+        // printf("%s\n", ch);
         if (readLen <= 0) {
             close(client_sockfd);
             continue;
@@ -62,8 +62,8 @@ int main() {
 
         // clean
         releaseMap(request.headers);
-        
-    }
+        close(client_sockfd);
+        }
 }
 
 

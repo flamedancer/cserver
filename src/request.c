@@ -50,11 +50,8 @@ void parse_request(
         // printf("key is %s \n", key);
         // printf("value is %s \n", value);
         line = start;
-        
-        struct Item * item = (struct Item *) malloc(sizeof(struct Item));
-        initItem(item);
-        item->key = key;
-        item->value = value;
+
+        struct Item *item = newItem(key, value);
         mapPush(request->headers, item);
     }
     /* 如果最后一行不是空行  说明有body数据 */
@@ -70,14 +67,17 @@ void parse_request(
     }
 
     /*  打印 request 信息 */
-    printf("---------------------------\n");
-    printf("method is: %s \n", request->method);
-    printf("url is: %s \n", request->url);
-    printf("http version is: %s \n", request->version);
-    printf("the headers are :\n");
-    mapPrint(request->headers);
-    printf("body is %s \n", request->body);
-    printf("---------------------------\n");
+    // printf("---------------------------\n");
+    // printf("method is: %s \n", request->method);
+    // printf("url is: %s \n", request->url);
+    // printf("http version is: %s \n", request->version);
+    // printf("the headers are :\n");
+    // mapPrint(request->headers);
+    // printf("body is %s \n", request->body);
+    // printf("---------------------------\n");
 
 }
 
+void releaseRequest(struct http_request *request) {
+
+}
