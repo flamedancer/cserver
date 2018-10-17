@@ -19,7 +19,7 @@ void initList(struct List * list) {
     list->length=0;
 }
 
-struct Item * newItem(char * key, char * value) {
+struct Item * newItem(char * key, void * value) {
     struct Item * item = (struct Item *) malloc(sizeof(struct Item));
     initItem(item);
     item->key = key;

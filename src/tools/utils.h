@@ -7,7 +7,7 @@
 struct Item {
     struct Item* next;
     char* key;
-    char* value;
+    void* value;
 };
 
 /* list */
@@ -19,7 +19,7 @@ struct List {
 
 void initItem(struct Item * listItem); 
 void initList(struct List * listItem); 
-struct Item * newItem(char * key, char * value);
+struct Item * newItem(char * key, void * value);
 
 
 void listAppend(struct List* list, struct Item* item);
