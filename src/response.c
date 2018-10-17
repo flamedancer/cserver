@@ -140,7 +140,7 @@ void show_dir_content(struct http_response * response) {
     while ((dir = readdir(d)) != NULL) // if we were able to read somehting from the directory
     {
         if (dir->d_type != DT_DIR) { // if the type is not directory just print it with blue
-            printf("%s\n", dir->d_name);
+            // printf("%s\n", dir->d_name);
             sprintf(liStrP, ui, dir->d_name, dir->d_name);
             liStrP = liStr + strlen(liStr);
         }
@@ -156,8 +156,8 @@ void show_dir_content(struct http_response * response) {
 void doCgi(char * filePath, struct http_response * response) {
     char fileName[100];
     char cmd[100];
-    sprintf(fileName, "%s.sh", filePath + strlen(action_url + 1));
-    sprintf(cmd, "sh cgi/%s 2>&1", fileName);
+    sprintf(fileName, "cgi/%s", filePath + strlen(action_url + 1));
+    sprintf(cmd, "%s 2>&1", fileName);
 
     FILE *fstream = NULL;
     if (access(fileName, F_OK) == -1 || NULL == (fstream = popen(cmd, "r"))) {
@@ -170,10 +170,9 @@ void doCgi(char * filePath, struct http_response * response) {
     int len = 0;
     char *buff = response->body;
     do {
-    buff += len;
-    len = fread(buff, 1024, 1, fstream);
-    printf("%d\n", len);
-
+        buff += len;
+        len = fread(buff, 1024, 1, fstream);
+        // printf("%d\n", len);
     } while (len);
     pclose(fstream);
     response->body_size = strlen(response->body);
