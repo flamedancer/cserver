@@ -4,6 +4,7 @@
 #ifndef __REQUEST__
 #define __REQUEST__ 
 #include "tools/utils.h"
+
 struct http_request {
     char * method;
     char * url;

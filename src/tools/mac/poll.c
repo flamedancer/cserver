@@ -1,4 +1,5 @@
 
+#include "../../config.h"
 #include "../poll.h"
 #include <err.h>
 #include <fcntl.h>
@@ -43,9 +44,9 @@ void updateEvents(struct PollEvent* event, int fd, int eventFLags, int modify, v
     }
 
     int r = kevent(event->epfd, ev, n, NULL, 0, NULL);
-    // printf("%d %d %d \n", event->epfd, fd, r);
+    debug_print("updateEvent: epfd is %d, fd is %d, flag is %d, result is %d \n", event->epfd, fd, eventFLags, r);
     if (r) {
-        // err(1, "kevent failed ");
+        err(1, "kevent failed ");
     }
 }
 

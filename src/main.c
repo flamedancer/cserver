@@ -1,7 +1,6 @@
 /**
 run cmd:
-gcc request.h request.c response.h response.c main.c tools/utils.c tools/utils.h && ./a.out
-
+make clean && make && ./myserver.out
 */
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -16,9 +15,7 @@ gcc request.h request.c response.h response.c main.c tools/utils.c tools/utils.h
 #include "request.h"
 #include "response.h"
 #include "tools/poll.h"
-
-#define MAXREQUESTLEN 50000
-#define MAXLISTENNUM 5
+#include "config.h"
 
 
 struct request_buff {
@@ -75,9 +72,9 @@ int main() {
             if (sock_fd <= 2) {
                 continue;
             }
-            // printf("this fd is %d \n", sock_fd);
+            debug_print("this fd is %d \n", sock_fd);
             int event_type = getEventType(eventItem);
-            // printf("echo event_type %d \n", event_type);
+            debug_print("echo event_type %d \n", event_type);
             if (event_type == Readtrigger) {
                 if (sock_fd == server_sockfd) {
                     //Accept a connection
@@ -90,12 +87,11 @@ int main() {
 
                     if (this_findEmptyBuffIndex < 0)
                         continue;
-                    // printf("use  buff index %d \n", this_findEmptyBuffIndex);
+                    debug_print("use  buff index %d \n", this_findEmptyBuffIndex);
 
                     int read_len = read(sock_fd, read_client_buff[this_findEmptyBuffIndex], MAXREQUESTLEN);
-                    // printf("%s\n", read_client_buff);
+                    debug_print("%s\n", read_client_buff);
                     if (read_len <= 0) {
-                        updateEvents(&pollevent, sock_fd, Emptytrigger, 1, NULL);
                         close(sock_fd);
                         continue;
                     }
@@ -127,7 +123,7 @@ int main() {
                 close(sock_fd);
 
                 memset(read_client_buff[p_buff->data_index], 0, sizeof(char) * MAXREQUESTLEN);
-                // printf("relase buff index %d \n", p_buff->data_index);
+                debug_print("relase buff index %d \n", p_buff->data_index);
             }
         }
     }

@@ -1,16 +1,15 @@
-
 /* response.c
 */
-#include <stdio.h>       /* fprintf  NULL */
-#include <string.h>       /* strlen */
-#include <stdlib.h>     /* malloc, free, rand */
-#include <dirent.h>     /* DIR opendir DT_DIR */
-#include <unistd.h>   /* access */
+#include "config.h"
 #include "response.h"
+#include "config.h"
 #include "request.h"
 #include "tools/utils.h"
-
-#define MaxResponseLen 5000
+#include <dirent.h> /* DIR opendir DT_DIR */
+#include <stdio.h> /* fprintf  NULL */
+#include <stdlib.h> /* malloc, free, rand */
+#include <string.h> /* strlen */
+#include <unistd.h> /* access */
 
 // #define home_url "/";
 const char * home_url = "/";

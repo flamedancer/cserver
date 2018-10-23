@@ -1,6 +1,7 @@
 /* tools/utils.c
 */
 
+#include "../config.h"
 #include <errno.h>        /* errno */
 #include <stdio.h>       /* NULL */
 #include <stdlib.h>    /* free malloc calloc */
@@ -194,23 +195,23 @@ void mapPrint(struct Map* map) {
     struct List* list; 
     struct Item* item;
     int print_item_cnt = 0; 
-    printf("{");
+    debug_print("{");
     for(int i=0; i<map->table_len; i++) {
-         list = map->table[i];
-         if(list == NULL) {
-            continue;
-         }
-         item = list->start;
-         while(item != NULL) {
-             printf("'%s': '%s'", item->key, item->value);
-             item = item->next;
-             print_item_cnt++;
-             if(print_item_cnt != map->item_cnt) {
-                 printf(", ");
-             }
-         }
+        list = map->table[i];
+        if(list == NULL) {
+        continue;
+        }
+        item = list->start;
+        while(item != NULL) {
+            debug_print("'%s': '%s'", item->key, item->value);
+            item = item->next;
+            print_item_cnt++;
+            if(print_item_cnt != map->item_cnt) {
+            debug_print(", ");
+            }
+        }
     }
-    printf("}\n");
+    debug_print("}\n");
 } 
 
 /* 查找是否有这个 key 有则返回对应value 没有则返回null */

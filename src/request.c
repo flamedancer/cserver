@@ -1,5 +1,6 @@
 /* request.c 
 */
+#include "config.h"
 #include "request.h"
 #include <stdio.h>
 #include <string.h>
@@ -67,15 +68,14 @@ void parse_request(
     }
 
     /*  打印 request 信息 */
-    // printf("---------------------------\n");
-    // printf("method is: %s \n", request->method);
-    // printf("url is: %s \n", request->url);
-    // printf("http version is: %s \n", request->version);
-    // printf("the headers are :\n");
-    // mapPrint(request->headers);
-    // printf("body is %s \n", request->body);
-    // printf("---------------------------\n");
-
+    debug_print("---------------------------\n");
+    debug_print("method is: %s \n", request->method);
+    debug_print("url is: %s \n", request->url);
+    debug_print("http version is: %s \n", request->version);
+    debug_print("the headers are :\n");
+    mapPrint(request->headers);
+    debug_print("body is %s \n", request->body);
+    debug_print("---------------------------\n");
 }
 
 void releaseRequest(struct http_request *request) {
