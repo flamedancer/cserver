@@ -1,12 +1,14 @@
 
+#include "../poll.h"
 #include <err.h>
+#include <fcntl.h>
 #include <stdio.h> /* fprintf  NULL */
+#include <stdlib.h>
 #include <sys/event.h> //  mac os
-#include "poll.h"
 
 const static int FD_NUM = 2;  // 两个文件描述符，分别为标准输入与输出
 
-int initPollEvent(struct pollEvent* event)
+int initPollEvent(struct PollEvent * event)
 {
     if ((event->epfd = kqueue()) == -1) {
         err(1, "Cannot create kqueue");
@@ -17,32 +19,38 @@ int initPollEvent(struct pollEvent* event)
     return 1;
 }
 
-void releasePollEvent(struct pollEvent* event) {
+void releasePollEvent(struct PollEvent * event)
+{
     free(event->eventItems);
 }
 
-void addEvents(struct pollEvent* event, int fd, int eventFLags, int modify, void* udata)
+/*
+It's not alwas nessesary to explicitly delete kqueue filters, because calling close() on a file descriptor will remove any kevents that reference the descriptor
+*/
+void updateEvents(struct PollEvent* event, int fd, int eventFLags, int modify, void* udata)
 {
     struct kevent ev[2];
     int n = 0;
-    if (eventFLags & kReadEvent) {
+    if (eventFLags & Readtrigger) {
         EV_SET(&ev[n++], fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, udata);
     } else if (modify) {
         EV_SET(&ev[n++], fd, EVFILT_READ, EV_DELETE, 0, 0, udata);
     }
-    if (eventFLags & kWriteEvent) {
+    if (eventFLags & Writetrigger) {
         EV_SET(&ev[n++], fd, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, udata);
     } else if (modify) {
         EV_SET(&ev[n++], fd, EVFILT_WRITE, EV_DELETE, 0, 0, udata);
     }
 
-    int r = kevent(event, ev, n, NULL, 0, NULL);
-    if (r == -1) {
-        err(1, "set add events error ");
+    int r = kevent(event->epfd, ev, n, NULL, 0, NULL);
+    // printf("%d %d %d \n", event->epfd, fd, r);
+    if (r) {
+        // err(1, "kevent failed ");
     }
 }
 
-int doPoll(struct pollEvent * event) {
+int doPoll(struct PollEvent* event)
+{
     int n = kevent(event->epfd, NULL, 0, event->eventItems, event->maxEventCnt, NULL);
     return n;
 }
@@ -53,17 +61,36 @@ int getFid(void * eventItem) {
 
 int getEventType(void * eventItem) {
     int type = ((struct kevent*)eventItem)->filter;
-    int returnType = kUnkonwEvent;
+    int returnType = Unkonwtrigger;
     switch (type) {
         case EVFILT_READ:
-            returnType = kReadEvent;
+            returnType = Readtrigger;
             break;
         case EVFILT_WRITE:
-            returnType = kWriteEvent;
+            returnType = Writetrigger;
             break;
         default:
-            returnType = kUnkonwEvent;
+            returnType = Unkonwtrigger;
             break;
     }
     return returnType;
+}
+
+void * getEventData(void* eventItem)
+{
+    return ((struct kevent*)eventItem)->udata;
+}
+
+void setNonBlock(int fd)
+{
+    int flags = fcntl(fd, F_GETFL, 0);
+    int r = fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+}
+
+int isChecked(void* eventItem) {
+    return 1;
+}
+
+void * getIndexEventItem(void* eventItems, int n) {
+    return (void *)(((struct kevent*)eventItems) + n);
 }

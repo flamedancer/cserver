@@ -10,14 +10,17 @@
 #include "request.h"
 #include "tools/utils.h"
 
+#define MaxResponseLen 5000
+
 // #define home_url "/";
 const char * home_url = "/";
 const char * static_url = "/static/";
 const char * action_url = "/action/";
 
-const char *errorMsg = "<html><meta charset='utf-8'>"
-                       "<p> cserver error: File Not Found </p>"
+const char* errorMsg = "<html><meta charset='utf-8'>"
                        "<a href='/'> >_< 看来你迷路了 </a>"
+                       "<p> cserver error: File Not Found </p>"
+                       "your path is %s"
                        "</html>";
 
 void initHttpResponse(struct http_response *response) {
@@ -46,10 +49,10 @@ void doResponse(struct http_request * request, FILE * stream) {
         responeFileContent(request->url + 1, response);
     } else if (strncmp(action_url, request->url, strlen(action_url)) == 0) {
         doCgi(request->url + 1, response);
-    } else if (strncmp(home_url, request->url, strlen(home_url)) == 0) {
+    } else if (strncmp(home_url, request->url, strlen(request->url)) == 0) {
         show_dir_content(response);
     } else {
-        setResponseMsg(response, errorMsg);
+        setResponseMsg(response, errorMsg, request->url);
     }
 
     char content_len[25];
@@ -99,14 +102,17 @@ void outputToFile(struct http_response * response, FILE * stream) {
     if(response->body_size > 0 && response->body != NULL) {
         fprintf(stream, "\r\n");
         fwrite(response->body, response->body_size, 1, stream);
+        // printf(" ------  this resp is : \n%s \n  ---------\n", response->body);
     }
 }
 
-void setResponseMsg(struct http_response * response, const char * msg) {
+void setResponseMsg(struct http_response* response, const char* msg, const char* url)
+{
     // meta 优先级比 header 高， 所以没必要 设置Content-Type: text/html; charset=utf-8
-    response->body_size = (int)strlen(msg);
+    response->body_size = (int)strlen(msg) + (int)strlen(url);
     response->body = (char *)malloc((response->body_size));
-    strcpy(response->body, msg);
+    sprintf(response->body, msg, url);
+    // strcpy(response->body, msg);
 }
 
 
@@ -121,6 +127,7 @@ void responeFileContent(char * filePath, struct http_response * response) {
     response->body_size = ftell(fileptr);
     rewind(fileptr);
     response->body = (char *)malloc((response->body_size));
+    memset(response->body, 0, response->body_size);
     fread(response->body, response->body_size, 1, fileptr);
     fclose(fileptr);
     return;
@@ -146,10 +153,10 @@ void show_dir_content(struct http_response * response) {
         }
     }
     closedir(d); // finally close the directory
-
-    response->body = (char *)malloc((strlen(liStr) + strlen(html)) * sizeof(char));
+    response->body_size = (strlen(liStr) + strlen(html)) * sizeof(char);
+    response->body = (char*)malloc(response->body_size);
+    memset(response->body, 0, response->body_size);
     sprintf(response->body, html, liStr);
-    response->body_size = strlen(response->body);
     return;
 }
 
@@ -162,11 +169,12 @@ void doCgi(char * filePath, struct http_response * response) {
     FILE *fstream = NULL;
     if (access(fileName, F_OK) == -1 || NULL == (fstream = popen(cmd, "r"))) {
         // file doesn't exist or FILE cannot be exec
-        setResponseMsg(response, errorMsg);
+        setResponseMsg(response, errorMsg, fileName);
         return;
     }
 
-    response->body = (char *)malloc((5000));
+    response->body = (char*)malloc((MaxResponseLen));
+    memset(response->body, 0, MaxResponseLen);
     int len = 0;
     char *buff = response->body;
     do {

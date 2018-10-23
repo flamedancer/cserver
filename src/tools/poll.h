@@ -1,29 +1,34 @@
 #ifndef __TOOLPOLL__
-#define __TOOLPOLLS__
+#define __TOOLPOLL__
 
+#define Readtrigger 1
+#define Writetrigger 2
+#define Emptytrigger 0
+#define Unkonwtrigger 1
 
-const int kReadEvent = 1;
-const int kWriteEvent = 2;
-const int kEmptyEvent = 0;
-const int kUnkonwEvent = -1;
+#define MaxEvents 20
 
-const int MaxEvents = 20;
-
-struct pollEvent {
+struct PollEvent {
     int epfd;
     void * eventItems;
     int maxEventCnt;
 };
 
-int initPollEvent(struct pollEvent * event); /*  return result   -1  error   1 success  */
-void releasePollEvent(struct pollEvent* even);
-int doPoll(struct pollEvent* event);
+int initPollEvent(struct PollEvent * event); /*  return result   -1  error   1 success  */
+void releasePollEvent(struct PollEvent * even);
+int doPoll(struct PollEvent* event);
 // void setNonBlock(int fd);
 
-/**  modify 为1  表示 del不在eventFLag 的 状态否则只是 add ventFLag **/
-void addEvents(struct pollEvent* event, int fd, int eventFLags, int modify, void* udata);
+/**  add eventFLag   modify 为1 时  会 del不在eventFLag 的状态  暂时实现 read 和 write 两种状态 **/
+void updateEvents(struct PollEvent* event, int fd, int eventFLags, int modify, void* udata);
 
+void * getIndexEventItem(void* eventItems, int n);
 int getFid(void* eventItem);
 int getEventType(void* eventItem);
+void * getEventData(void* eventItem);
+
+void setNonBlock(int fd);
+
+int isChecked(void* eventItem);
 
 #endif

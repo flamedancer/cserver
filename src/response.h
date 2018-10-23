@@ -19,7 +19,7 @@ void doResponse(
     struct http_request * request, 
     FILE * stream
 );
-void setResponseMsg(struct http_response *response, const char * msg);
+void setResponseMsg(struct http_response* response, const char* msg, const char* url);
 
 void outputToFile(
     struct http_response * response,
