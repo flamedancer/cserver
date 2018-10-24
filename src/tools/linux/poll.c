@@ -1,5 +1,5 @@
 
-
+#include "../../config.h"
 #include "../poll.h"
 #include <err.h>
 #include <stdlib.h>
@@ -104,6 +104,5 @@ void* getEventData(void* eventItem)
 /* Linux
 */
 void setNonBlock(int fd) {
-    setnonblocking(fd);
 }
 
