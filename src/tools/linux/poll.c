@@ -55,9 +55,9 @@ void updateEvents(struct PollEvent* event, int fd, int eventFLags, int modify, v
         mod = EPOLL_CTL_ADD;
     }
     if (eventFLags == Readtrigger) {
-        ev.events = EPOLLIN | EPOLLET;
+        ev.events = EPOLLIN;
     } else if (eventFLags == Writetrigger) {
-        ev.events = EPOLLOUT | EPOLLET;
+        ev.events = EPOLLOUT;
     }
 
     int r = epoll_ctl(event->epfd, mod, fd, &ev);
