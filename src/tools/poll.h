@@ -16,11 +16,11 @@ struct PollEvent {
 
 int initPollEvent(struct PollEvent * event); /*  return result   -1  error   1 success  */
 void releasePollEvent(struct PollEvent * even);
-int doPoll(struct PollEvent* event);
 // void setNonBlock(int fd);
 
 /**  add eventFLag   modify 为1 时  会 del不在eventFLag 的状态  暂时实现 read 和 write 两种状态 **/
 void updateEvents(struct PollEvent* event, int fd, int eventFLags, int modify, void* udata);
+int doPoll(struct PollEvent* event);
 
 void * getIndexEventItem(void* eventItems, int n);
 int getFid(void* eventItem);
@@ -29,6 +29,9 @@ void * getEventData(void* eventItem);
 
 void setNonBlock(int fd);
 
-int isChecked(void* eventItem);
+/*
+检查 eventItem 是否 有错误信息
+*/
+// int isChecked(void* eventItem);
 
 #endif

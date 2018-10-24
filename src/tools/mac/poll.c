@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <sys/event.h> //  mac os
 
-const static int FD_NUM = 2;  // 两个文件描述符，分别为标准输入与输出
 
 int initPollEvent(struct PollEvent * event)
 {
@@ -56,6 +55,11 @@ int doPoll(struct PollEvent* event)
     return n;
 }
 
+void* getIndexEventItem(void* eventItems, int n)
+{
+    return (void*)(((struct kevent*)eventItems) + n);
+}
+
 int getFid(void * eventItem) {
     return ((struct kevent*)eventItem)->ident;
 }
@@ -88,10 +92,7 @@ void setNonBlock(int fd)
     int r = fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 }
 
-int isChecked(void* eventItem) {
-    return 1;
-}
+// int isChecked(void* eventItem) {
+//     return 1;
+// }
 
-void * getIndexEventItem(void* eventItems, int n) {
-    return (void *)(((struct kevent*)eventItems) + n);
-}

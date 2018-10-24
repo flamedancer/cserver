@@ -23,12 +23,11 @@ struct request_buff {
     int data_index;
 };
 
-int findEmptyBuffIndex(char* c[MAXREQUESTLEN])
+int findEmptyBuffIndex(char * c[50000])
 {
     int n = 0;
     while (n < MAXLISTENNUM) {
-        if (*(c + n) == 0)
-        {
+        if (*(c + n) == 0) {
             return n;
         } else {
             n++;
@@ -83,14 +82,14 @@ int main() {
                     updateEvents(&pollevent, client_sockfd, Readtrigger, 0, NULL);
                 } else {
                     if (sock_fd < 0) continue;
-                    int this_findEmptyBuffIndex = findEmptyBuffIndex(read_client_buff[0]);
+                    int this_findEmptyBuffIndex = findEmptyBuffIndex((char**)read_client_buff);
 
                     if (this_findEmptyBuffIndex < 0)
                         continue;
                     debug_print("use  buff index %d \n", this_findEmptyBuffIndex);
 
                     int read_len = read(sock_fd, read_client_buff[this_findEmptyBuffIndex], MAXREQUESTLEN);
-                    debug_print("%s\n", read_client_buff);
+                    debug_print("%s\n", (char *)read_client_buff[this_findEmptyBuffIndex]);
                     if (read_len <= 0) {
                         close(sock_fd);
                         continue;
@@ -111,22 +110,21 @@ int main() {
                 struct http_request* p_request = &(p_buff->request);
                 FILE* fp = fdopen(sock_fd, "w+");
                 doResponse(p_request, fp);
-
-                // write(client_sockfd, &send_str, sizeof(send_str)/sizeof(send_str[0]));
-
-                // clean
-                // 这时只有 write 事件 注册，删掉 write 事件   就清空了 sock_fd 在 pollevent 里的注册
-                // updateEvents(&pollevent, sock_fd, Readtrigger, 1, NULL);
-                releaseMap(p_request->headers);
                 fflush(fp);
                 fclose(fp);
+                // write(client_sockfd, &send_str, sizeof(send_str)/sizeof(send_str[0]));
+
+                releaseMap(p_request->headers);
+
                 close(sock_fd);
 
                 memset(read_client_buff[p_buff->data_index], 0, sizeof(char) * MAXREQUESTLEN);
-                debug_print("relase buff index %d \n", p_buff->data_index);
+                debug_print("release buff index %d \n", p_buff->data_index);
             }
         }
     }
+
+    releasePollEvent(&pollevent);
 }
 
 

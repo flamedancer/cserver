@@ -1,6 +1,7 @@
 objects = main.o request.o response.o \
     utils.o poll.o
-VPATH = tools tools/mac
+sysname=$(shell if [ "$(uname)" = 'Linux' ];then echo 'linux'; else echo 'mac'; fi)
+VPATH = tools tools/$(sysname)
 
 myserver.out : $(objects)
 	cc -o myserver.out $(objects)
