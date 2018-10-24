@@ -1,7 +1,8 @@
 
-#include "../../config.h"
 #include "../poll.h"
+#include "../../config.h"
 #include <err.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <sys/epoll.h>
 
@@ -104,5 +105,7 @@ void* getEventData(void* eventItem)
 /* Linux
 */
 void setNonBlock(int fd) {
+    int flags = fcntl(fd, F_GETFL, 0);
+    int r = fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 }
 

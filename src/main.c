@@ -57,7 +57,7 @@ int main() {
 
     struct PollEvent pollevent;
     initPollEvent(&pollevent);
-    // setNonBlock(server_sockfd);
+    setNonBlock(server_sockfd);
     updateEvents(&pollevent, server_sockfd, Readtrigger, 0, NULL);
 
     char read_client_buff[MAXLISTENNUM][MAXREQUESTLEN];
