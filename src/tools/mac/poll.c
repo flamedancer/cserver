@@ -4,7 +4,8 @@
 #include <err.h>
 #include <fcntl.h>
 #include <stdio.h> /* fprintf  NULL */
-#include <stdlib.h>
+#include <stdlib.h>   /* mallco */
+
 #include <sys/event.h> //  mac os
 
 

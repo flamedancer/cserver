@@ -1,7 +1,8 @@
 
 
 #include "../poll.h"
-
+#include <err.h>
+#include <stdlib.h>
 #include <sys/epoll.h>
 
 int initPollEvent(struct PollEvent* event)
@@ -45,7 +46,7 @@ void updateEvents(struct PollEvent* event, int fd, int eventFLags, int modify, v
 {
     struct epoll_event ev;
     ev.data.fd = fd;
-    ev.dat.ptr = udata;
+    ev.data.ptr = udata;
     int mod = EPOLL_CTL_ADD;
     if (modify) {
         mod = EPOLL_CTL_MOD;
