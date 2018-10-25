@@ -69,7 +69,7 @@ void updateEvents(struct PollEvent* event, int fd, int eventFLags, int modify, v
 
 int doPoll(struct PollEvent* event) {
     int n = epoll_wait(event->epfd, event->eventItems, event->maxEventCnt, -1);
-    if (nfds == -1) {
+    if (n == -1) {
         perror("epoll_wait");
         exit(EXIT_FAILURE);
     }
