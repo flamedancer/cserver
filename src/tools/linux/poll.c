@@ -12,7 +12,7 @@ int initPollEvent(struct PollEvent* event)
         err(1, "Cannot create epoll");
         return -1;
     }
-    event->eventItems = (struct epoll_event*)malloc(MaxEvents * sizeof(struct epoll_event));
+    event->eventItems = (struct epoll_event*)calloc(MaxEvents, sizeof(struct epoll_event));
     event->maxEventCnt = MaxEvents;
     return 1;
 }
@@ -55,9 +55,9 @@ void updateEvents(struct PollEvent* event, int fd, int eventFLags, int modify, v
         mod = EPOLL_CTL_ADD;
     }
     if (eventFLags == Readtrigger) {
-        ev.events = EPOLLIN;
+        ev.events = EPOLLIN | EPOLLET;
     } else if (eventFLags == Writetrigger) {
-        ev.events = EPOLLOUT;
+        ev.events = EPOLLOUT | EPOLLET;
     }
 
     int r = epoll_ctl(event->epfd, mod, fd, &ev);
