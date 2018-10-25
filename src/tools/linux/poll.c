@@ -82,7 +82,7 @@ void* getIndexEventItem(void* eventItems, int n)
 
 int getFid(void* eventItem)
 {
-    return (struct request_buff * )getEventData(eventItem)->fd;
+    return ((struct request_buff * )getEventData(eventItem))->fd;
 }
 
 int getEventType(void* eventItem)
