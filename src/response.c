@@ -92,7 +92,7 @@ void outputToFile(struct http_response * response, FILE * stream) {
         while(item != NULL) {
             fprintf(stream, "%s: %s\r\n",
                 item->key,
-                item->value
+                (char *)(item->value)
             );
             item = item->next;
         }

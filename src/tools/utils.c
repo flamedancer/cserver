@@ -79,7 +79,7 @@ void listPrint(struct List* list) {
         if( i>0 ) {
             printf(", ");
         }
-        printf("'%s'", point->value);
+        printf("'%s'", (char *)(point->value));
         point = point->next;
     }
     printf("]\n");
@@ -199,15 +199,15 @@ void mapPrint(struct Map* map) {
     for(int i=0; i<map->table_len; i++) {
         list = map->table[i];
         if(list == NULL) {
-        continue;
+            continue;
         }
         item = list->start;
         while(item != NULL) {
-            debug_print("'%s': '%s'", item->key, item->value);
+            debug_print("'%s': '%s'", item->key, (char *)(item->value));
             item = item->next;
             print_item_cnt++;
             if(print_item_cnt != map->item_cnt) {
-            debug_print(", ");
+                debug_print(", ");
             }
         }
     }

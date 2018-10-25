@@ -1,4 +1,5 @@
 #ifndef __CONFIG__
+#include <stdio.h>
 
 #define DEBUG 1
 #define MAXREQUESTLEN 50000
