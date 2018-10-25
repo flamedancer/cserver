@@ -67,7 +67,9 @@ void updateEvents(struct PollEvent* event, int fd, int eventFLags, int modify, v
 }
 
 int doPoll(struct PollEvent* event) {
+    debug_print("start poll \n");
     int n = epoll_wait(event->epfd, event->eventItems, event->maxEventCnt, -1);
+    debug_print("poll num is %d \n", n);
     if (n == -1) {
         perror("epoll_wait");
         exit(EXIT_FAILURE);
