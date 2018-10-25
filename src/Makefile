@@ -4,7 +4,6 @@ sysname=$(shell if [ "$$(uname)" = 'Linux' ];then echo 'linux'; else echo 'mac';
 VPATH = tools tools/$(sysname)
 
 myserver.out : $(objects)
-    echo $(sysname)
 	cc -o myserver.out $(objects)
 
 main.o :
