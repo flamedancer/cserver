@@ -99,6 +99,7 @@ int main() {
                     struct request_buff reBuff;
                     reBuff.request.headers
                         = &headers;
+                    reBuff.fd = sock_fd;
                     reBuff.data_index = this_findEmptyBuffIndex;
                     parse_request(&(reBuff.request), read_client_buff[0] + this_findEmptyBuffIndex);
                     updateEvents(&pollevent, sock_fd, Writetrigger, 1, (void*)(&reBuff));
