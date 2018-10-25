@@ -78,7 +78,9 @@ int main() {
                     //Accept a connection
                     int client_sockfd = accept(server_sockfd,
                         (struct sockaddr*)&client_address, (socklen_t*)&client_len);
-                    updateEvents(&pollevent, client_sockfd, Readtrigger, 0, NULL);
+                    struct request_buff reBuff;
+                    reBuff.fd = sock_fd;
+                    updateEvents(&pollevent, client_sockfd, Readtrigger, 0, &reBuff);
                 } else {
                     int this_findEmptyBuffIndex = findEmptyBuffIndex((char**)read_client_buff);
 
