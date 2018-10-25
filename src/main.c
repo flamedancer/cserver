@@ -68,10 +68,10 @@ int main() {
         for (int i = 0; i < ready_fd_num; i++) {
             void * eventItem = getIndexEventItem(pollevent.eventItems, i);
             int sock_fd = getFid(eventItem);
+            debug_print("this fd is %d \n", sock_fd);
             if (sock_fd <= 2) {
                 continue;
             }
-            debug_print("this fd is %d \n", sock_fd);
             int event_type = getEventType(eventItem);
             debug_print("echo event_type %d \n", event_type);
             if (event_type == Readtrigger) {

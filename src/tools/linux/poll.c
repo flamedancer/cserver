@@ -69,6 +69,10 @@ void updateEvents(struct PollEvent* event, int fd, int eventFLags, int modify, v
 
 int doPoll(struct PollEvent* event) {
     int n = epoll_wait(event->epfd, event->eventItems, event->maxEventCnt, -1);
+    if (nfds == -1) {
+        perror("epoll_wait");
+        exit(EXIT_FAILURE);
+    }
     return n;
 }
 
@@ -79,7 +83,7 @@ void* getIndexEventItem(void* eventItems, int n)
 
 int getFid(void* eventItem)
 {
-    return ((struct epoll_event*)eventItem)->data.fd;
+    return (((struct epoll_event*)eventItem)->data).fd;
 }
 
 int getEventType(void* eventItem)
