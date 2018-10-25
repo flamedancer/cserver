@@ -18,10 +18,7 @@ make clean && make && ./myserver.out
 #include "config.h"
 
 
-struct request_buff {
-    struct http_request request;
-    int data_index;
-};
+
 
 int findEmptyBuffIndex(char * c[50000])
 {
@@ -58,7 +55,9 @@ int main() {
     struct PollEvent pollevent;
     initPollEvent(&pollevent);
     // setNonBlock(server_sockfd);
-    updateEvents(&pollevent, server_sockfd, Readtrigger, 0, NULL);
+    struct request_buff reBuff;
+    reBuff.fd = server_sockfd;
+    updateEvents(&pollevent, server_sockfd, Readtrigger, 0, &reBuff);
 
     char read_client_buff[MAXLISTENNUM][MAXREQUESTLEN];
     memset(read_client_buff, 0, sizeof(char) * MAXREQUESTLEN * MAXLISTENNUM);
@@ -68,12 +67,12 @@ int main() {
         for (int i = 0; i < ready_fd_num; i++) {
             void * eventItem = getIndexEventItem(pollevent.eventItems, i);
             int sock_fd = getFid(eventItem);
+            int event_type = getEventType(eventItem);
             debug_print("this fd is %d \n", sock_fd);
+            debug_print("echo event_type %d \n", event_type);
             if (sock_fd <= 2) {
                 continue;
             }
-            int event_type = getEventType(eventItem);
-            debug_print("echo event_type %d \n", event_type);
             if (event_type == Readtrigger) {
                 if (sock_fd == server_sockfd) {
                     //Accept a connection
@@ -81,7 +80,6 @@ int main() {
                         (struct sockaddr*)&client_address, (socklen_t*)&client_len);
                     updateEvents(&pollevent, client_sockfd, Readtrigger, 0, NULL);
                 } else {
-                    if (sock_fd < 0) continue;
                     int this_findEmptyBuffIndex = findEmptyBuffIndex((char**)read_client_buff);
 
                     if (this_findEmptyBuffIndex < 0)

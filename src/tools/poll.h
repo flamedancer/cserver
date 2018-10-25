@@ -1,4 +1,6 @@
 #ifndef __TOOLPOLL__
+#include "../request.h"
+
 #define __TOOLPOLL__
 
 #define Readtrigger 1
@@ -12,6 +14,12 @@ struct PollEvent {
     int epfd;
     void * eventItems;
     int maxEventCnt;
+};
+
+struct request_buff {
+    struct http_request request;
+    int fd;
+    int data_index;
 };
 
 int initPollEvent(struct PollEvent * event); /*  return result   -1  error   1 success  */
