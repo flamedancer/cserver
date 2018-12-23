@@ -47,7 +47,7 @@ struct PollEvent {
 ```
 epfd 为事件池句柄
 eventItems 当前被触发的事件数组
-maxEventCnt 为最大可容纳事件数
+maxEventCnt 为最大可容纳被触发事件数
 
 #####2 . 添加事件
 ```c
