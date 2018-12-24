@@ -46,6 +46,7 @@ man 7 epoll
 void updateEvents(struct PollEvent* event, int fd, int eventFLags, int modify, void* udata)
 {
     struct epoll_event ev;
+    ev.data.fd = fd;
     ev.data.ptr = udata;
     int mod = EPOLL_CTL_ADD;
     if (modify) {
@@ -84,7 +85,7 @@ void* getIndexEventItem(void* eventItems, int n)
 
 int getFid(void* eventItem)
 {
-    return ((struct request_buff * )getEventData(eventItem))->fd;
+    return (int*)getEventData(eventItem)->data.fd;
 }
 
 int getEventType(void* eventItem)

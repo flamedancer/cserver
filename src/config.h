@@ -1,7 +1,7 @@
 #ifndef __CONFIG__
 #include <stdio.h>
 
-#define DEBUG 0
+#define DEBUG 1
 #define MAXREQUESTLEN 50000
 #define MAXLISTENNUM 5
 #define MaxResponseLen 5000

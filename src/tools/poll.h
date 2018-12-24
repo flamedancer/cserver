@@ -16,11 +16,6 @@ struct PollEvent {
     int maxEventCnt;
 };
 
-struct request_buff {
-    struct http_request request;
-    int fd;
-    int data_index;
-};
 
 int initPollEvent(struct PollEvent * event); /*  return result   -1  error   1 success  */
 void releasePollEvent(struct PollEvent * even);

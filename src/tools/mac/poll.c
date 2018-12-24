@@ -33,12 +33,12 @@ void updateEvents(struct PollEvent* event, int fd, int eventFLags, int modify, v
     struct kevent ev[2];
     int n = 0;
     if (eventFLags & Readtrigger) {
-        EV_SET(&ev[n++], fd, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, udata);
+        EV_SET(&ev[n++], fd, EVFILT_READ, EV_ADD | EV_ENABLE , 0, 0, udata);
     } else if (modify) {
         EV_SET(&ev[n++], fd, EVFILT_READ, EV_DELETE, 0, 0, udata);
     }
     if (eventFLags & Writetrigger) {
-        EV_SET(&ev[n++], fd, EVFILT_WRITE, EV_ADD | EV_ENABLE, 0, 0, udata);
+        EV_SET(&ev[n++], fd, EVFILT_WRITE, EV_ADD | EV_ENABLE , 0, 0, udata);
     } else if (modify) {
         EV_SET(&ev[n++], fd, EVFILT_WRITE, EV_DELETE, 0, 0, udata);
     }
