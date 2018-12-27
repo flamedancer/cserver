@@ -8,9 +8,13 @@
 #define Emptytrigger 0
 #define Unkonwtrigger 1
 
+#define TriggerPolicy_ALWAYS 0
+#define TriggerPolicy_ONESHOT 1
+#define TriggerPolicy_CLEAR 2
+
 #define MaxEvents 20
 
-struct PollEvent {
+    struct PollEvent {
     int epfd;
     void * eventItems;
     int maxEventCnt;
@@ -22,7 +26,7 @@ void releasePollEvent(struct PollEvent * even);
 // void setNonBlock(int fd);
 
 /**  add eventFLag   modify 为1 时  会 del不在eventFLag 的状态  暂时实现 read 和 write 两种状态 **/
-void updateEvents(struct PollEvent* event, int fd, int eventFLags, int modify, void* udata);
+void updateEvents(struct PollEvent* event, int fd, int eventFLags, int policy, int modify, void* udata);
 int doPoll(struct PollEvent* event);
 
 void * getIndexEventItem(void* eventItems, int n);

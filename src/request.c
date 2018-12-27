@@ -30,6 +30,7 @@ void parse_request(
     request->method = method;
     request->url = url;
     request->version = version;
+    request->body = NULL;
     /* 第一行解析结束 */
     /* 第二行开始为 header  解析hedaer*/
     start++;   // 第二行开始

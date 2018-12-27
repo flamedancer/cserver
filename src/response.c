@@ -15,6 +15,13 @@ const char* home_url = "/";
 const char* static_url = "/static/";
 const char* action_url = "/action/";
 
+char* http_version = "HTTP/1.1";
+char* http_code = "200";
+char* http_desc = "OK";
+char* http_len_key = "Content-Length";
+char* http_type_key = "Content-Type";
+char* http_text_type = "text/html; charset=utf-8";
+
 const char* errorMsg = "<html><meta charset='utf-8'>"
                        "<a href='/'> >_< 看来你迷路了 </a>"
                        "<p> cserver error: File Not Found </p>"
@@ -38,9 +45,9 @@ struct http_response* doResponse(struct http_request* request)
     initMap(map);
     response->headers = map;
 
-    response->version = "HTTP/1.1";
-    response->code = "200";
-    response->desc = "OK";
+    response->version = http_version;
+    response->code = http_code ;
+    response->desc = http_desc;
 
     if (strncmp(static_url, request->url, strlen(static_url)) == 0) {
         responeFileContent(request->url + 1, response);
@@ -55,9 +62,10 @@ struct http_response* doResponse(struct http_request* request)
     char* content_len = malloc(25 * sizeof(char));
     sprintf(content_len, "%d", response->body_size);
     struct Item* item = newItem(
-        "Content-Length",
+        http_len_key,
         content_len);
     mapPush(response->headers, item);
+    debug_print("response body is %s\n", response->body);
     return response;
     // outputToFile(response, stream);
 
@@ -99,7 +107,6 @@ void outputToFile(struct http_response* response, FILE* stream)
         // printf(" ------  this resp is : \n%s \n  ---------\n", response->body);
     }
     fflush(stream);
-    debug_print("response body is %s\n", response->body);
 }
 
 void setResponseMsg(struct http_response* response, const char* msg, const char* url)
@@ -183,8 +190,8 @@ void doCgi(char* filePath, struct http_response* response)
     pclose(fstream);
     response->body_size = strlen(response->body);
     struct Item* item2 = newItem(
-        "Content-Type",
-        "text/html; charset=utf-8");
+        http_type_key,
+        http_text_type);
     mapPush(response->headers, item2);
 
     return;
@@ -194,7 +201,7 @@ void releaseResponse(struct http_response* response)
 {
     free(response->body); // If ptr is NULL, no operation is performed.
     response->body = NULL;
-    free(mapGet(response->headers, "Content-Length"));
+    free(mapGet(response->headers, http_len_key));
     releaseMap(response->headers);
     free(response->headers);
 }

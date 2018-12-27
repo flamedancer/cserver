@@ -20,29 +20,9 @@ make clean && make && ./myserver.out
 
 int main()
 {
-    int server_sockfd;
-    socklen_t server_len;
+    // todo 1. 执行流程图     2. 为什么noblock  3. 事件触发策略
+    prepareWork();
 
-    struct sockaddr_in server_address;
-
-    server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
-
-    server_address.sin_family = AF_INET;
-    server_address.sin_addr.s_addr = inet_addr("127.0.0.1");
-    server_address.sin_port = htons(9734);
-    server_len = sizeof(server_address);
-    bind(server_sockfd, (struct sockaddr*)&server_address, server_len);
-
-    listen(server_sockfd, MAXLISTENNUM);
-
-    initPollEvent(&pollevent);
-    // setNonBlock(server_sockfd);
-
-    updateEvents(&pollevent, server_sockfd, Readtrigger, 0, &server_sockfd);
-
-    initTaskPoll();
-    int c = 0;
-    int d = 0;
     while (1) {
         int ready_fd_num = doPoll(&pollevent);
         for (int i = 0; i < ready_fd_num; i++) {
@@ -56,26 +36,89 @@ int main()
             }
             if (event_type == Readtrigger) {
                 if (sock_fd == server_sockfd) {
-                    struct Task* task = pushNewTask(sock_fd, TaskType_newClient, NULL);
-                    doNewClient(task);
-                    resetTask(task);
+                    pushNewTask(sock_fd, TaskType_newClient, NULL);
+
                 } else {
-                    struct Task* task = pushNewTask(sock_fd, TaskType_readClient, NULL);
-                    doReadClient(task);
-                    resetTask(task);
-                    d++;
-                    printf("has start %d \n", d);
+                    pushNewTask(sock_fd, TaskType_readClient, NULL);
                 }
             } else if (event_type == Writetrigger) {
-                struct http_response* response = getEventData(eventItem);
-                struct Task* task = pushNewTask(sock_fd, TaskType_writeClient, response);
-                doWriteClient(task);
-                resetTask(task);
-                c++;
-                printf("has handle %d \n", c);
+                // updateEvents(&pollevent, sock_fd, Readtrigger, 1, NULL);
+                struct http_response* response
+                    = getEventData(eventItem);
+                pushNewTask(sock_fd, TaskType_writeClient, response);
             }
         }
     }
 
+    cleanWork();
+    exit(EXIT_SUCCESS);
+}
+
+void initServerSocket()
+{
+
+    socklen_t server_len;
+
+    struct sockaddr_in server_address;
+
+    server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
+
+    server_address.sin_family = AF_INET;
+    server_address.sin_addr.s_addr = inet_addr("127.0.0.1");
+    server_address.sin_port = htons(9734);
+    server_len = sizeof(server_address);
+    bind(server_sockfd, (struct sockaddr*)&server_address, server_len);
+    setNonBlock(server_sockfd);
+    listen(server_sockfd, MAXLISTENNUM);
+}
+
+void prepareWork()
+{
+    initServerSocket();
+    initPollEvent(&pollevent);
+    initTaskPoll();
+
+    
+    // 监听事件 : server_sockfd 可read
+    updateEvents(&pollevent, server_sockfd, Readtrigger, TriggerPolicy_CLEAR, 0, 0);
+
+    int res = pthread_mutex_init(&work_mutex, NULL);
+    if (res != 0) {
+        perror("Mutex initialization failed");
+        exit(EXIT_FAILURE);
+    }
+
+    bin_sem = sem_open(SEM_NAME, O_CREAT, S_IRUSR | S_IWUSR, 0, 0);
+    if (bin_sem == SEM_FAILED) {
+        perror("Semaphore initialization failed");
+        exit(EXIT_FAILURE);
+    }
+
+    for (int i = 0; i < MAXLISTENNUM; i++) {
+        res = pthread_create(&thread_pool[i], NULL, doTask, NULL);
+        if (res != 0) {
+            perror("Thread creation failed");
+            exit(EXIT_FAILURE);
+        }
+    }
+}
+
+void cleanWork()
+{
+    int res;
+    void* thread_result;
+    printf("\nWaiting for thread to finish...\n");
+    for (int i = 0; i < MAXLISTENNUM; i++) {
+        res = pthread_join(thread_pool[i], &thread_result);
+        if (res != 0) {
+            perror("Thread join failed");
+            exit(EXIT_FAILURE);
+        }
+        printf("Thread joined ,index is %d \n", i);
+    }
     releasePollEvent(&pollevent);
+    pthread_mutex_destroy(&work_mutex);
+    sem_close(bin_sem);
+    sem_unlink(SEM_NAME);
+    close(server_sockfd);
 }

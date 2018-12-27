@@ -27,8 +27,11 @@ void doWriteClient(struct Task* task);
 
 struct Task task_poll[MAXLISTENNUM];
 void initTaskPoll();
-int findFreeTaskIndex();
+struct Task* selectTask(int status);
+struct Task* getAndSetStatusTask(int selectStatus, int newStatus);
 
 struct Task* pushNewTask(int fd, int type, struct http_response* response);
+
+void* doTask();
 
 #endif
