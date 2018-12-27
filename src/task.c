@@ -8,7 +8,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h> /* memset */
+#include <time.h>
 #include <unistd.h> /* read close fd */
+
+const struct timespec spec = { 0, 100 };
 
 void resetTask(struct Task* task)
 {
@@ -44,9 +47,12 @@ struct Task* getAndSetStatusTask(int selectStatus, int newStatus)
 
     pthread_mutex_lock(&work_mutex);
     struct Task* task = selectTask(selectStatus);
-    if (task == NULL) {
-        perror("Cannot pushNewTask");
-        exit(EXIT_FAILURE);
+
+    while (task == NULL) {
+        nanosleep(&spec, NULL);
+        task = selectTask(selectStatus);
+        // perror("Cannot pushNewTask");
+        // exit(EXIT_FAILURE);
     }
     task->status = newStatus;
     pthread_mutex_unlock(&work_mutex);
@@ -82,11 +88,13 @@ void doNewClient(struct Task* task)
             } else {
                 printf("server fd is  %d \n", server_sockfd);
                 perror("error when client_sockfd accept");
-                // continue;
-                exit(EXIT_FAILURE);
+                return;
+                // exit(EXIT_FAILURE);
             }
         }
         printf("has client start %d \n", client_sockfd);
+        
+        setNonBlock(client_sockfd);
 
         updateEvents(&pollevent, client_sockfd, Readtrigger, TriggerPolicy_ONESHOT, 0, NULL);
         // break;
@@ -96,7 +104,6 @@ void doNewClient(struct Task* task)
 void doReadClient(struct Task* task)
 {
     int sock_fd = task->fd;
-    // setNonBlock(sock_fd);
     int read_len = read(sock_fd, task->read_client_buff, MAXREQUESTLEN);
     debug_print("fd %d read buff %s\n", sock_fd, (char*)task->read_client_buff);
     if (read_len <= 0) {
@@ -138,9 +145,6 @@ void* doTask()
     while (1) {
         sem_wait(bin_sem);
         struct Task* task = getAndSetStatusTask(TaskStatus_init, TaskStatus_doing);
-        if (task == NULL) {
-            continue;
-        }
         switch (task->type) {
         case TaskType_newClient:
             debug_print("doNewClient\n");
@@ -158,7 +162,7 @@ void* doTask()
 
             break;
         default:
-            perror("Undefined Task Type");
+            perror("no that Task Type");
             exit(EXIT_FAILURE);
         }
         debug_print("finish task\n");
