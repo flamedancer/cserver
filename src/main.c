@@ -26,6 +26,7 @@ int main()
     while (1) {
         int ready_fd_num = doPoll(&pollevent);
         for (int i = 0; i < ready_fd_num; i++) {
+            printf("i is %d \n", i);
             void* eventItem = getIndexEventItem(pollevent.eventItems, i);
             int sock_fd = getFid(eventItem);
             int event_type = getEventType(eventItem);
@@ -34,23 +35,16 @@ int main()
             if (sock_fd <= 2) {
                 continue;
             }
-            if (event_type == Readtrigger) {
-                if (sock_fd == server_sockfd) {
-                    pushNewTask(sock_fd, TaskType_newClient, NULL);
-
-                } else {
-                    pushNewTask(sock_fd, TaskType_readClient, NULL);
-                }
-            } else if (event_type == Writetrigger) {
-                // updateEvents(&pollevent, sock_fd, Readtrigger, 1, NULL);
-                struct http_response* response
-                    = getEventData(eventItem);
-                pushNewTask(sock_fd, TaskType_writeClient, response);
-            }
+            // fd
+            // 设置任务 状态  为  可以io读写
+            setStatusInitByFd(sock_fd);
+            sem_post(bin_sem);
+            // sleep(5);
         }
     }
 
     cleanWork();
+    printf("whats happen !");
     exit(EXIT_SUCCESS);
 }
 
@@ -62,7 +56,10 @@ void initServerSocket()
     struct sockaddr_in server_address;
 
     server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
-
+    if (DEBUG) {
+        int ov = 1;
+        setsockopt(server_sockfd, SOL_SOCKET, SO_REUSEPORT, (void*)&ov, sizeof ov);
+    }
     server_address.sin_family = AF_INET;
     server_address.sin_addr.s_addr = inet_addr("127.0.0.1");
     server_address.sin_port = htons(9734);

@@ -46,7 +46,7 @@ struct http_response* doResponse(struct http_request* request)
     response->headers = map;
 
     response->version = http_version;
-    response->code = http_code ;
+    response->code = http_code;
     response->desc = http_desc;
 
     if (strncmp(static_url, request->url, strlen(static_url)) == 0) {
@@ -199,9 +199,13 @@ void doCgi(char* filePath, struct http_response* response)
 
 void releaseResponse(struct http_response* response)
 {
+    if (response == NULL) {
+        return;
+    }
     free(response->body); // If ptr is NULL, no operation is performed.
     response->body = NULL;
     free(mapGet(response->headers, http_len_key));
     releaseMap(response->headers);
     free(response->headers);
+    free(response);
 }

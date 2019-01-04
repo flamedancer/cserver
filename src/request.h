@@ -13,11 +13,9 @@ struct http_request {
     char * body; 
 };
 
-
 void parse_request(
-    struct http_request * request,  
-    char * http_data);
-
-
+    struct http_request* request,
+    char* http_data,
+    int http_data_len);
 
 #endif

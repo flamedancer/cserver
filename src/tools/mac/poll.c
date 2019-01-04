@@ -56,9 +56,9 @@ void updateEvents(struct PollEvent* event, int fd, int eventFLags, int policy, i
 
     int r = kevent(event->epfd, ev, n, NULL, 0, NULL);
     debug_print("updateEvent: epfd is %d, fd is %d, flag is %d, result is %d \n", event->epfd, fd, eventFLags, r);
-    // if (r) {
-    //     err(1, "kevent failed ");
-    // }
+    if (r) {
+        err(1, "kevent failed ");
+    }
 }
 
 int doPoll(struct PollEvent* event)
