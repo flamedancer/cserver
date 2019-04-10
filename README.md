@@ -1,7 +1,7 @@
 # cserver
 从零开始一个服务器（C语言）
 # 运行
-make clean && make && ./myserver
+make clean && make && ./myserver.out
 # 浏览器访问
  http://127.0.0.1:9734/
 
