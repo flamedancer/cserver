@@ -14,7 +14,7 @@
 
 #define MaxEvents 20
 
-    struct PollEvent {
+struct PollEvent {
     int epfd;
     void * eventItems;
     int maxEventCnt;
