@@ -1,5 +1,6 @@
 #include "../sem.h"
 #include <stdlib.h>
+#include <string.h>>
 
 int new_sem(sem_t** p_sem, const char* sem_name)
 {

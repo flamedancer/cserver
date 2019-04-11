@@ -97,7 +97,7 @@ void prepareWork()
     int error = new_sem(&bin_sem, SEM_NAME);
     printf("xxx1 step error is %d \n", error);
     if (bin_sem == NULL) {
-        perror("Semaphore initialization failed");
+        perror("xxSemaphore initialization failed");
         exit(EXIT_FAILURE);
     }
     if (error != 0) {
