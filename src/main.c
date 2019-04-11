@@ -18,6 +18,7 @@ make clean && make && ./myserver.out
 #include "task.h"
 #include "tools/poll.h"
 
+
 int main()
 {
     // todo 1. 执行流程图     2. 为什么noblock  3. 事件触发策略
@@ -28,7 +29,10 @@ int main()
         for (int i = 0; i < ready_fd_num; i++) {
             printf("i is %d \n", i);
             void* eventItem = getIndexEventItem(pollevent.eventItems, i);
-            int sock_fd = getFid(eventItem);
+            
+            // int sock_fd = getFid(eventItem);
+            int sock_fd = server_sockfd;
+            printf("y \n");
             int event_type = getEventType(eventItem);
             debug_print("this fd is %d \n", sock_fd);
             debug_print("echo event_type %d \n", event_type);
@@ -38,7 +42,7 @@ int main()
             // fd
             // 设置任务 状态  为  可以io读写
             setStatusInitByFd(sock_fd);
-            v_sem(bin_sem);
+            v_sem(&bin_sem);
             // sleep(5);
         }
     }
@@ -75,9 +79,12 @@ void prepareWork()
     initPollEvent(&pollevent);
     initTaskPoll();
 
+    printf("x step \n");
     
     // 监听事件 : server_sockfd 可read
     updateEvents(&pollevent, server_sockfd, Readtrigger, TriggerPolicy_CLEAR, 0, 0);
+
+    printf("xx step \n");
 
     int res = pthread_mutex_init(&work_mutex, NULL);
     if (res != 0) {
@@ -85,11 +92,16 @@ void prepareWork()
         exit(EXIT_FAILURE);
     }
 
-    int err = new_sem(bin_sem, SEM_NAME);
+    printf("xxx step \n");
+
+    int err = new_sem(&bin_sem, SEM_NAME);
+    printf("xxx1 step \n");
     if (err == -1) {
         perror("Semaphore initialization failed");
         exit(EXIT_FAILURE);
     }
+
+     printf("xxxx step \n");
 
     for (int i = 0; i < MAXLISTENNUM; i++) {
         res = pthread_create(&thread_pool[i], NULL, doTask, NULL);
@@ -98,6 +110,9 @@ void prepareWork()
             exit(EXIT_FAILURE);
         }
     }
+
+    printf("xxxxx step \n");
+
 }
 
 void cleanWork()
@@ -115,6 +130,6 @@ void cleanWork()
     }
     releasePollEvent(&pollevent);
     pthread_mutex_destroy(&work_mutex);
-    remove_sem(bin_sem, SEM_NAME);
+    remove_sem(&bin_sem, SEM_NAME);
     close(server_sockfd);
 }

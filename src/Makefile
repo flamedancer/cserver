@@ -4,7 +4,7 @@ sysname=$(shell if [ "$$(uname)" = 'Linux' ];then echo 'linux'; else echo 'mac';
 VPATH = tools tools/$(sysname)
 
 myserver.out : $(objects)
-	cc -o myserver.out $(objects)
+	gcc -pthread -o myserver.out $(objects)
 
 main.o :
 task.o :

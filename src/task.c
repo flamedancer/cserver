@@ -101,7 +101,7 @@ struct Task* setStatusInitByFd(int fd)
     struct Task* task = selectTaskByFd(fd);
     int retry_cnt = 0;
     while (task == NULL && retry_cnt < max_try_cnt) {
-        sem_post(bin_sem);
+        sem_post(&bin_sem);
         retry_cnt++;
         nanosleep(&spec, NULL);
         task = selectTaskByFd(fd);
@@ -233,7 +233,7 @@ void* doTask()
 {
     struct Task* task;
     while (1) {
-        p_sem(bin_sem);
+        p_sem(&bin_sem);
         task = NULL;
         while ((task = getAndSetStatusTask(TaskStatus_init, TaskStatus_doing)) != NULL)
         {
