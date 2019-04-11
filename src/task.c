@@ -233,7 +233,10 @@ void* doTask()
 {
     struct Task* task;
     while (1) {
-        p_sem(bin_sem);
+        int error = p_sem(bin_sem);
+        if (error != 0) {
+            perror("sem wait error");
+        }
         task = NULL;
         while ((task = getAndSetStatusTask(TaskStatus_init, TaskStatus_doing)) != NULL)
         {

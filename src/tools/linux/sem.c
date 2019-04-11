@@ -1,8 +1,15 @@
 #include "../sem.h"
+#include <stdlib.h>
 
-int new_sem(sem_t* sem, const char* sem_name)
+int new_sem(sem_t** p_sem, const char* sem_name)
 {
-    sem_t *sem = malloc(sizeof(sem_t));
+    sem_t* sem = (sem_t*)malloc(sizeof(sem_t));
+    *p_sem = sem;
+    if (sem == NULL) {
+        perror("new_sem failed");
+        exit(EXIT_FAILURE);
+    }
+    memset(sem, 0, sizeof(sem_t));
     return sem_init(sem, 0, 0);
 }
 
@@ -18,5 +25,10 @@ int p_sem(sem_t* sem)
 
 int remove_sem(sem_t* sem, const char* sem_name)
 {
-    return sem_destroy(sem) && free(sem);
+    int error = sem_destroy(sem);
+    if (error == -1) {
+        return error;
+    }
+    free(sem);
+    return error;
 }

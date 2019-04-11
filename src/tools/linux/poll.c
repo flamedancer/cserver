@@ -84,7 +84,7 @@ void* getIndexEventItem(void* eventItems, int n)
 
 int getFid(void* eventItem)
 {
-    return (int)getEventData(eventItem);
+    return ((struct epoll_event*)eventItem)->data.fd;
 }
 
 int getEventType(void* eventItem)

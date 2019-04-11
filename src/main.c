@@ -94,17 +94,22 @@ void prepareWork()
 
     printf("xxx step \n");
 
-    int error = new_sem(bin_sem, SEM_NAME);
-    printf("xxx1 step \n");
-    if (error == -1) {
+    int error = new_sem(&bin_sem, SEM_NAME);
+    printf("xxx1 step error is %d \n", error);
+    if (bin_sem == NULL) {
+        perror("Semaphore initialization failed");
+        exit(EXIT_FAILURE);
+    }
+    if (error != 0) {
         perror("Semaphore initialization failed");
         exit(EXIT_FAILURE);
     }
 
-     printf("xxxx step \n");
+    printf("xxxx step \n");
 
     for (int i = 0; i < MAXLISTENNUM; i++) {
         res = pthread_create(&thread_pool[i], NULL, doTask, NULL);
+        printf("okkkk step \n");
         if (res != 0) {
             perror("Thread creation failed");
             exit(EXIT_FAILURE);
