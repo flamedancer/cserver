@@ -2,6 +2,7 @@
 
 int new_sem(sem_t* sem, const char* sem_name)
 {
+    sem_t *sem = malloc(sizeof(sem_t));
     return sem_init(sem, 0, 0);
 }
 
@@ -17,5 +18,5 @@ int p_sem(sem_t* sem)
 
 int remove_sem(sem_t* sem, const char* sem_name)
 {
-    return sem_destroy(sem);
+    return sem_destroy(sem) && free(sem);
 }

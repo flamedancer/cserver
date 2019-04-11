@@ -42,7 +42,7 @@ int main()
             // fd
             // 设置任务 状态  为  可以io读写
             setStatusInitByFd(sock_fd);
-            v_sem(&bin_sem);
+            v_sem(bin_sem);
             // sleep(5);
         }
     }
@@ -94,9 +94,9 @@ void prepareWork()
 
     printf("xxx step \n");
 
-    int err = new_sem(&bin_sem, SEM_NAME);
+    int error = new_sem(bin_sem, SEM_NAME);
     printf("xxx1 step \n");
-    if (err == -1) {
+    if (error == -1) {
         perror("Semaphore initialization failed");
         exit(EXIT_FAILURE);
     }
@@ -130,6 +130,6 @@ void cleanWork()
     }
     releasePollEvent(&pollevent);
     pthread_mutex_destroy(&work_mutex);
-    remove_sem(&bin_sem, SEM_NAME);
+    remove_sem(bin_sem, SEM_NAME);
     close(server_sockfd);
 }

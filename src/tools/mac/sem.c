@@ -2,8 +2,9 @@
 
 int new_sem(sem_t* sem, const char* sem_name)
 {
-    sem = sem_open(sem_name, O_CREAT, S_IRUSR | S_IWUSR, 0, 0);
-    if (sem == SEM_FAILED) {
+    sem_t * _sem = sem_open(sem_name, O_CREAT, S_IRUSR | S_IWUSR, 0, 0);
+    if (_sem == SEM_FAILED) {
+        printf("???? step \n");
         return -1;
     }
     return 0;
