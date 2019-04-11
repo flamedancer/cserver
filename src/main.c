@@ -38,7 +38,7 @@ int main()
             // fd
             // 设置任务 状态  为  可以io读写
             setStatusInitByFd(sock_fd);
-            sem_post(bin_sem);
+            v_sem(bin_sem);
             // sleep(5);
         }
     }
@@ -85,8 +85,8 @@ void prepareWork()
         exit(EXIT_FAILURE);
     }
 
-    bin_sem = sem_open(SEM_NAME, O_CREAT, S_IRUSR | S_IWUSR, 0, 0);
-    if (bin_sem == SEM_FAILED) {
+    bin_sem = new_sem(bin_sem, SEM_NAME);
+    if (bin_sem == -1) {
         perror("Semaphore initialization failed");
         exit(EXIT_FAILURE);
     }
@@ -115,7 +115,6 @@ void cleanWork()
     }
     releasePollEvent(&pollevent);
     pthread_mutex_destroy(&work_mutex);
-    sem_close(bin_sem);
-    sem_unlink(SEM_NAME);
+    remove_sem(bin_sem, SEM_NAME);
     close(server_sockfd);
 }

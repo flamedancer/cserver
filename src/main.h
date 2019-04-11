@@ -1,7 +1,7 @@
 #ifndef __MAIN__
 #define __MAIN__
+#include "tools/sem.h"
 #include <pthread.h>
-#include <semaphore.h>
 
 int server_sockfd;
 
