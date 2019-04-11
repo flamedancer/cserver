@@ -43,7 +43,7 @@ man 7 epoll
            descriptor if other file descriptors referring to the same under‐
            lying file description remain open.
 */
-void updateEvents(struct PollEvent* event, int fd, int eventFLags, int modify, void* udata)
+void updateEvents(struct PollEvent* event, int fd, int eventFLags, int policy, int modify, void* udata)
 {
     struct epoll_event ev;
     ev.data.fd = fd;

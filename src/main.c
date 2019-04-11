@@ -85,8 +85,8 @@ void prepareWork()
         exit(EXIT_FAILURE);
     }
 
-    bin_sem = new_sem(bin_sem, SEM_NAME);
-    if (bin_sem == -1) {
+    int err = new_sem(bin_sem, SEM_NAME);
+    if (err == -1) {
         perror("Semaphore initialization failed");
         exit(EXIT_FAILURE);
     }
